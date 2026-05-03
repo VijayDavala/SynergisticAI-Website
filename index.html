@@ -2454,19 +2454,19 @@ nav { position: relative; z-index: 9999; }
   .aia-tile { flex: 0 0 85%; }
   .aia-coverflow-stage { display: none; }
 
-  /* Footer: brand full-width, then 2-col links */
+  /* Footer: single column stack on all phones/tablets */
   .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    grid-template-columns: 1fr !important;
+    gap: 32px;
     margin-bottom: 32px;
   }
-  .footer-brand {
-    grid-column: 1 / -1;
-  }
-  .footer-logo-hero img { width: 100px; height: 100px; margin-bottom: 12px; }
+  .footer-brand { grid-column: auto; }
+  .footer-logo-hero img { width: 90px; height: 90px; margin-bottom: 12px; }
   .footer-brand-name { font-size: 1rem; }
   .footer-brand-sub { font-size: 0.7rem; letter-spacing: 3px; }
   .footer-brand p { max-width: 100%; }
+  .footer-col { padding-top: 0; border-top: 1px solid rgba(0,212,212,0.08); padding-top: 20px; }
+  .footer-col:first-of-type { border-top: none; padding-top: 0; }
   .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 
@@ -3986,13 +3986,6 @@ nav { position: relative; z-index: 9999; }
           <a href="#" class="social-link" aria-label="YouTube">▶</a>
         </div>
       </div>
-        <p>Empowering B2B businesses with Agentic AI, intelligent automations, and digital marketing to innovate, automate, and dominate.</p>
-        <div class="social-links" aria-label="Social media links">
-          <a href="#" class="social-link" aria-label="LinkedIn">in</a>
-          <a href="#" class="social-link" aria-label="Twitter">𝕏</a>
-          <a href="#" class="social-link" aria-label="Facebook">f</a>
-          <a href="#" class="social-link" aria-label="YouTube">▶</a>
-        </div>
       </div>
 
       <nav class="footer-col" aria-label="Industries footer navigation">
