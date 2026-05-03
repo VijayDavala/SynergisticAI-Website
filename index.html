@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FJRVS24PBE"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-FJRVS24PBE');
-  </script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FJRVS24PBE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-FJRVS24PBE');
+</script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Synergistic AI Solutions – Agentic AI, Automation, and Digital Marketing for B2B companies. Innovate. Automate. Dominate." />
@@ -1945,7 +1946,8 @@
         position: fixed; top: var(--nav-height); left: 0; right: 0;
         flex-direction: column; gap: 0;
         background: rgba(10,26,46,0.98);
-        backdrop-filter: blur(20px);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
         border-bottom: 1px solid rgba(0,212,212,0.15);
         max-height: 0; overflow: hidden;
         transition: max-height 0.4s ease;
@@ -2012,7 +2014,7 @@
        VISUAL FX  — cursor · sparkles · orbs · spotlight
                     3D tilt · magnetic · card-shine
     ═══════════════════════════════════════════════════════════ */
-    *, *::before, *::after { cursor: none !important; }
+    @media (hover: hover) and (pointer: fine) { *, *::before, *::after { cursor: none !important; } }
 
     #cursor-outer {
       position: fixed; top: 0; left: 0; z-index: 99999;
@@ -2319,7 +2321,7 @@
 /* ===== UNIVERSAL POPUP MODAL ===== */
 .uni-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);
   display:flex;align-items:center;justify-content:center;padding:16px;
-  opacity:0;pointer-events:none;transition:opacity .3s ease;backdrop-filter:blur(6px)}
+  opacity:0;pointer-events:none;transition:opacity .3s ease;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .uni-overlay.open{opacity:1;pointer-events:all}
 .uni-card{background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);
   border:1px solid rgba(255,255,255,0.1);border-radius:20px;
@@ -2329,7 +2331,7 @@
 .uni-overlay.open .uni-card{transform:translateY(0) scale(1)}
 .uni-close{position:absolute;top:16px;right:20px;background:rgba(255,255,255,.08);
   border:none;color:#fff;font-size:22px;width:36px;height:36px;border-radius:50%;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;touch-action:manipulation}
 .uni-close:hover{background:rgba(255,255,255,.18)}
 .uni-header{display:flex;align-items:flex-start;gap:18px;margin-bottom:20px}
 .uni-icon{font-size:36px;width:64px;height:64px;display:flex;align-items:center;
@@ -2352,6 +2354,130 @@
   color:#fff;font-size:14px;font-weight:700;padding:14px 32px;border-radius:100px;
   cursor:pointer;letter-spacing:.5px;transition:opacity .2s,transform .2s;touch-action:manipulation}
 .uni-cta:hover{opacity:.9;transform:translateY(-1px)}
+
+/* ═══════════════════════════════════════════════
+   MOBILE FIX — clean build, no patch accumulation
+   ═══════════════════════════════════════════════ */
+
+/* Global iOS tap optimisations */
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+*:not(input):not(textarea):not(select) { touch-action: manipulation; }
+html, body { overflow-x: hidden; width: 100%; }
+
+/* Hide custom cursor elements on touch devices */
+@media (hover: none), (pointer: coarse) {
+  #cursor-outer, #cursor-inner, #dot-ring, .cur-spark { display: none !important; }
+}
+
+/* Z-index stacking */
+.grid-overlay, .particles { z-index: 0 !important; pointer-events: none !important; }
+nav { position: relative; z-index: 9999; }
+
+/* ── 900px: Mobile nav ── */
+@media (max-width: 900px) {
+  :root { --nav-height: 70px; }
+  nav { height: 70px; padding: 0 16px; }
+  .nav-logo img { width: 48px; height: 48px; }
+  .nav-logo-text { font-size: 1.2rem; }
+  .hamburger {
+    display: flex !important;
+    cursor: pointer;
+    min-height: 44px; min-width: 44px;
+    align-items: center; justify-content: center;
+    touch-action: manipulation;
+    position: relative; z-index: 10001;
+  }
+  .nav-cta { display: none !important; }
+
+  .nav-links {
+    position: fixed !important;
+    top: 70px; left: 0; right: 0;
+    flex-direction: column !important;
+    gap: 0;
+    background: rgba(8, 20, 38, 0.99) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid rgba(0,212,212,0.2);
+    max-height: 0 !important;
+    overflow: hidden !important;
+    margin-left: 0;
+    z-index: 9998;
+    transition: max-height 0.3s ease;
+    pointer-events: none;
+  }
+  .nav-links.open {
+    max-height: 600px !important;
+    pointer-events: auto;
+  }
+
+  .nav-link {
+    height: auto !important;
+    min-height: 48px;
+    padding: 14px 20px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    touch-action: manipulation;
+  }
+
+  /* Disable CSS hover dropdowns on mobile */
+  .nav-item:hover .dropdown,
+  .nav-item:focus-within .dropdown {
+    opacity: 0 !important; visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
+
+/* ── 768px: Content layout ── */
+@media (max-width: 768px) {
+  #home { padding: calc(70px + 20px) 16px 40px; }
+  .hero-title { font-size: 2rem; line-height: 1.2; }
+  .hero-tagline { letter-spacing: 2px; font-size: 0.9rem; }
+  .hero-sub { font-size: 0.9rem; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+  .hero-stats { flex-direction: column; gap: 0; }
+  .stat-item { border-right: none; border-bottom: 1px solid rgba(0,212,212,0.15); }
+  .stat-item:last-child { border-bottom: none; }
+
+  .particles, .grid-overlay, body::before, .hero-glow { display: none !important; }
+
+  .industries-grid, .services-grid, .aia-why-grid { grid-template-columns: 1fr !important; }
+  .dm-services-grid { grid-template-columns: 1fr !important; }
+  .dm-left-panel { grid-row: auto; }
+  .careers-intro { grid-template-columns: 1fr; }
+  .about-grid { grid-template-columns: 1fr; }
+  .process-steps::before { display: none; }
+  .form-row { grid-template-columns: 1fr; }
+
+  .aia-tiles-track { animation: none !important; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .aia-tile { flex: 0 0 85%; }
+  .aia-coverflow-stage { display: none; }
+
+  /* Footer: single column stack on all phones/tablets */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+  .footer-brand { grid-column: auto; }
+  .footer-logo-hero img { width: 90px; height: 90px; margin-bottom: 12px; }
+  .footer-brand-name { font-size: 1rem; }
+  .footer-brand-sub { font-size: 0.7rem; letter-spacing: 3px; }
+  .footer-brand p { max-width: 100%; }
+  .footer-col { padding-top: 0; border-top: 1px solid rgba(0,212,212,0.08); padding-top: 20px; }
+  .footer-col:first-of-type { border-top: none; padding-top: 0; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+
+/* ── 480px: Single column ── */
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr !important; }
+  .footer-brand { grid-column: auto; }
+  .footer-logo-hero img { width: 80px; height: 80px; }
+  .careers-perks { grid-template-columns: 1fr; }
+  .about-values { grid-template-columns: 1fr; }
+}
 
 </style>
 </head>
@@ -3860,13 +3986,6 @@
           <a href="#" class="social-link" aria-label="YouTube">▶</a>
         </div>
       </div>
-        <p>Empowering B2B businesses with Agentic AI, intelligent automations, and digital marketing to innovate, automate, and dominate.</p>
-        <div class="social-links" aria-label="Social media links">
-          <a href="#" class="social-link" aria-label="LinkedIn">in</a>
-          <a href="#" class="social-link" aria-label="Twitter">𝕏</a>
-          <a href="#" class="social-link" aria-label="Facebook">f</a>
-          <a href="#" class="social-link" aria-label="YouTube">▶</a>
-        </div>
       </div>
 
       <nav class="footer-col" aria-label="Industries footer navigation">
@@ -3941,11 +4060,25 @@
     /* ============ HAMBURGER ============ */
     const hamburger = document.getElementById('hamburger');
     const navLinks = document.getElementById('navLinks');
-    hamburger.addEventListener('click', () => {
-      const isOpen = navLinks.classList.toggle('open');
-      hamburger.classList.toggle('open', isOpen);
-      hamburger.setAttribute('aria-expanded', isOpen);
-    });
+    /* Rock-solid hamburger: touchend for iOS, click for desktop */
+    (function() {
+      var _touched = false;
+      function _toggle() {
+        var isOpen = navLinks.classList.toggle('open');
+        hamburger.classList.toggle('open', isOpen);
+        hamburger.setAttribute('aria-expanded', String(isOpen));
+      }
+      hamburger.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        _touched = true;
+        _toggle();
+        setTimeout(function() { _touched = false; }, 600);
+      }, { passive: false });
+      hamburger.addEventListener('click', function() {
+        if (_touched) { return; }
+        _toggle();
+      });
+    })();
 
     // Dropdown interaction — desktop: hover (CSS handles it)
     // Mobile: click parent button to toggle dropdown
@@ -4526,6 +4659,15 @@
     ═══════════════════════════════════════════════════════════ */
     (function initFX() {
 
+      /* ── TOUCH GUARD ── */
+      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        ['cursor-outer','cursor-inner','dot-ring','spotlight'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) { el.style.display = 'none'; el.style.pointerEvents = 'none'; }
+        });
+        return;
+      }
+
       /* ── grab elements ── */
       const co  = document.getElementById('cursor-outer');
       const ci  = document.getElementById('cursor-inner');
@@ -4736,13 +4878,11 @@
     });
 
   
-  /* ===== UNIVERSAL POPUP ===== */
-  var _POP   = {"ai": {"01": {"title": "Autonomous AI Agents", "icon": "🤖", "tagline": "AI that works while you sleep — 24/7, zero supervision.", "what": "Deploy intelligent agents that receive instructions, make multi-step decisions, and execute complex tasks completely autonomously.", "features": ["Multi-tool orchestration (web search, CRM, email, APIs)", "Self-correcting logic with error recovery", "Memory & context retention across sessions", "Real-time reporting & audit trails"], "results": ["10x productivity increase", "90% reduction in manual tasks", "Scales without hiring"], "usecases": "Lead research, competitor monitoring, data enrichment, automated reporting, client onboarding.", "accent": "#00d4d4"}, "02": {"title": "Workflow Automation", "icon": "⚡", "tagline": "Set it once. Run forever. Zero inputs needed.", "what": "Build automated workflows triggered by time, events, or data changes — from daily report generation to invoice delivery and client onboarding.", "features": ["Time-based and event-driven triggers", "Multi-system integrations (CRM, email, Slack, ERP)", "Conditional branching and smart routing", "Built-in error handling and retry logic"], "results": ["Save 40+ hours per week", "Zero manual errors", "Runs 24/7 without oversight"], "usecases": "Invoice generation, report distribution, client onboarding, CRM updates, approval workflows.", "accent": "#39ff14"}, "03": {"title": "Business Process Automation", "icon": "🏭", "tagline": "Eliminate back-office bottlenecks — permanently.", "what": "Automate payroll, HR workflows, invoice processing, and data entry — so your team focuses on work that actually grows the business.", "features": ["End-to-end HR and payroll automation", "Intelligent invoice processing and reconciliation", "Automated compliance checks and audit logs", "ERP and accounting system integration"], "results": ["90% error reduction", "60% cost savings on operations", "Full compliance and audit ready"], "usecases": "Employee onboarding, purchase orders, inventory management, accounts payable, expense approvals.", "accent": "#ff00cc"}, "04": {"title": "AI Voice Agents", "icon": "🎙️", "tagline": "Your best sales rep — available 24/7, at infinite scale.", "what": "Deploy AI voice agents that handle inbound calls and outbound outreach — qualifying leads, booking appointments, and following up naturally.", "features": ["Human-like conversational AI", "Inbound support + outbound lead qualification", "CRM integration for instant data capture", "Custom scripts, personas and escalation rules"], "results": ["Handle 1000s of calls simultaneously", "3x faster lead response time", "24/7 coverage, zero agent fatigue"], "usecases": "Lead qualification, appointment booking, payment reminders, customer support, post-sale follow-ups.", "accent": "#00d4d4"}, "05": {"title": "Social Media AI Systems", "icon": "📱", "tagline": "Full social media presence — on autopilot.", "what": "AI manages your entire social media operation — generating on-brand content, scheduling posts, responding to comments, and reaching out to prospects.", "features": ["AI-generated content for your brand voice", "Automated scheduling across all platforms", "Engagement automation (comments & replies)", "Analytics-driven content optimisation"], "results": ["10x content output", "Consistent daily presence", "Warm leads from outreach"], "usecases": "LinkedIn B2B outreach, Instagram growth, Twitter/X engagement, YouTube content, community management.", "accent": "#39ff14"}, "06": {"title": "Customer Service Automation", "icon": "💬", "tagline": "Instant answers. Happy customers. Zero wait time.", "what": "Deploy AI that handles customer inquiries, routes support tickets, resolves common issues instantly, and escalates only complex cases to your human team.", "features": ["AI chatbot across web, email and WhatsApp", "Intelligent ticket routing and prioritisation", "Knowledge base integration for accurate answers", "Sentiment detection and smart escalation"], "results": ["80% of queries resolved without human", "Under 30 second average response time", "4.8 star average CSAT improvement"], "usecases": "FAQ handling, order tracking, refund processing, technical support, appointment rescheduling.", "accent": "#ff00cc"}, "07": {"title": "Marketing Automation", "icon": "📈", "tagline": "Personalised at scale. Convert more, spend less.", "what": "Automate the full marketing funnel — from lead capture and nurture sequences to audience segmentation and campaign reporting.", "features": ["Behaviour-triggered email and SMS sequences", "Dynamic audience segmentation and scoring", "Multi-channel campaign orchestration", "Real-time A/B testing and optimisation"], "results": ["3x higher email open rates", "5x ROI on campaigns", "60% reduction in cost per lead"], "usecases": "Lead nurture, abandoned cart recovery, re-engagement campaigns, event marketing, upsell flows.", "accent": "#7b2fff"}, "08": {"title": "Document Processing", "icon": "📄", "tagline": "From hours to seconds — AI speed document processing.", "what": "AI extracts, classifies, validates, and routes contracts, invoices, and forms automatically — with human-level accuracy at machine speed.", "features": ["AI-powered OCR and intelligent data extraction", "Automated classification and document routing", "Contract review and clause extraction", "ERP and accounting system sync"], "results": ["95% accuracy on data extraction", "10x faster processing", "Zero manual keying errors"], "usecases": "Invoice processing, contract management, KYC forms, purchase orders, compliance documents.", "accent": "#00d4d4"}, "09": {"title": "Smart CRM Integration", "icon": "🎯", "tagline": "No lead slips. Every deal tracked. Revenue protected.", "what": "Connect AI to your CRM to automate lead scoring, follow-up sequencing, pipeline updates, and deal tracking.", "features": ["AI-powered lead scoring and prioritisation", "Automated follow-up sequences by behaviour", "Real-time pipeline updates and deal alerts", "Revenue forecasting and churn prediction"], "results": ["40% increase in pipeline velocity", "2x higher close rates", "100% follow-up compliance"], "usecases": "HubSpot, Salesforce, GHL automation; lead routing; deal stage progression; win/loss analysis.", "accent": "#39ff14"}, "10": {"title": "Predictive Process Automation", "icon": "🔮", "tagline": "Stay ahead of problems before they happen.", "what": "Deploy machine learning models that forecast demand, detect anomalies, and trigger automated actions before issues arise.", "features": ["Demand forecasting and inventory optimisation", "Real-time anomaly detection and alerts", "Automated corrective action workflows", "Custom ML model development and deployment"], "results": ["30% reduction in operational downtime", "25% inventory cost savings", "Early warning system for risks"], "usecases": "Supply chain optimisation, fraud detection, predictive maintenance, churn prediction, dynamic pricing.", "accent": "#ff00cc"}}, "dm": {"01": {"title": "Website Design", "icon": "🖥️", "tagline": "Your brand's digital home — built to impress and convert.", "what": "Modern, fast, mobile-first websites that reflect your brand and turn every visitor into a potential customer. Every pixel designed for performance.", "features": ["Custom responsive design (desktop, tablet & mobile)", "SEO-optimised page structure from day one", "90+ Google PageSpeed score", "CMS integration (WordPress, Webflow or custom)", "Lead capture forms, live chat and conversion elements"], "results": ["3x more visitor engagement", "60% faster page load times", "Higher Google ranking"], "usecases": "Business websites, landing pages, portfolio sites, company rebrands, microsites.", "accent": "#00d4d4"}, "02": {"title": "E-Commerce Websites", "icon": "🛒", "tagline": "Your online store — open 24/7, built to sell.", "what": "Mobile-ready online stores with seamless checkout, secure payments, and intuitive navigation — designed to maximise revenue from day one.", "features": ["Full e-commerce development (Shopify or WooCommerce)", "Mobile-optimised product pages and fast checkout", "Secure payment gateway integration", "Inventory, order and shipping management", "Abandoned cart recovery and upsell flows"], "results": ["2x higher conversion rates", "40% reduction in cart abandonment", "Scales to thousands of products"], "usecases": "Product stores, subscription boxes, B2B wholesale portals, digital downloads.", "accent": "#ff00cc"}, "03": {"title": "SEO Services", "icon": "🔍", "tagline": "Rank higher. Get found. Grow organically.", "what": "Comprehensive SEO strategy that improves search rankings, drives qualified organic traffic, and builds long-term digital authority.", "features": ["Full technical SEO audit and on-site fixes", "Keyword research and competitive gap analysis", "On-page and off-page optimisation", "Local SEO and Google Business Profile optimisation", "Monthly ranking reports and content recommendations"], "results": ["3x organic traffic growth in 6 months", "Top 3 Google rankings for target keywords", "70% lower cost-per-acquisition vs paid ads"], "usecases": "Local business discovery, national brand visibility, competitor keyword targeting, content marketing.", "accent": "#39ff14"}, "04": {"title": "Lead Generation Campaigns", "icon": "🎯", "tagline": "Quality leads, not just clicks. Revenue not vanity metrics.", "what": "End-to-end lead generation campaigns across Google, Meta, LinkedIn and more — every campaign built around ROI.", "features": ["Multi-channel strategy (Google, Meta, LinkedIn, YouTube)", "Targeted ad creative and conversion copywriting", "Landing page design and continuous A/B testing", "CRM integration and real-time lead tracking", "Automated nurture sequences post-capture"], "results": ["5x average ROI on ad spend", "60% lower cost-per-lead vs industry average", "Pipeline filled with sales-qualified prospects"], "usecases": "B2B services, real estate, healthcare, financial services, SaaS, coaching and consulting.", "accent": "#00d4d4"}, "05": {"title": "Social Media Marketing", "icon": "📲", "tagline": "Build authority. Grow your audience. Drive real revenue.", "what": "Strategic social media management that builds your brand presence and generates business from LinkedIn, Instagram, Facebook, YouTube and X.", "features": ["Content strategy planning and editorial calendar", "Professional graphic design and short-form video", "Community management and audience engagement", "Paid social campaigns for reach and conversions", "Analytics insights and monthly performance reviews"], "results": ["10x follower growth in first 90 days", "5x higher engagement rates", "Consistent inbound leads from social"], "usecases": "Brand awareness, product launches, B2B thought leadership, community building, event promotion.", "accent": "#ff00cc"}, "06": {"title": "Conversion Optimisation", "icon": "📊", "tagline": "More revenue from the traffic you already have.", "what": "CRO strategy that identifies exactly why visitors are not converting and systematically fixes it — turning existing traffic into a revenue engine.", "features": ["User behaviour analysis (heatmaps and session recordings)", "A/B and multivariate testing across key pages", "Landing page redesign and persuasive copywriting", "Checkout and form funnel optimisation", "Trust signals, social proof and urgency elements"], "results": ["40%+ increase in conversion rate", "2x more revenue from identical traffic", "Significantly lower customer acquisition cost"], "usecases": "E-commerce checkout, service enquiry forms, SaaS trial sign-ups, landing page performance.", "accent": "#39ff14"}, "07": {"title": "Pay-Per-Click (PPC)", "icon": "💰", "tagline": "Every cent tracked, optimised, and maximised.", "what": "Data-driven PPC campaigns on Google, Meta, LinkedIn, and YouTube that reach your ideal customer at exactly the right moment.", "features": ["Google Ads and Meta Ads setup and management", "Keyword bidding strategy and ongoing optimisation", "High-converting ad copy and creative design", "Audience targeting (lookalikes and retargeting)", "Weekly performance reports with clear ROI"], "results": ["4x average return on ad spend (ROAS)", "50% lower cost-per-click vs self-managed", "Campaigns profitable from week one"], "usecases": "Product sales, service enquiries, app downloads, event registrations, e-commerce promotions.", "accent": "#00d4d4"}, "08": {"title": "CRM Solutions", "icon": "🤝", "tagline": "Never lose a lead. Close every deal. Retain every customer.", "what": "We implement, configure, and automate your CRM so every lead is captured, every follow-up happens on time, and your sales team closes faster.", "features": ["CRM setup and customisation (HubSpot, GHL, Salesforce)", "Automated lead scoring and smart assignment rules", "Follow-up email and SMS sequence automation", "Pipeline tracking, deal stages and forecasting", "Custom dashboards, reports and team analytics"], "results": ["2x faster sales cycles", "100% follow-up compliance — zero leads missed", "40% increase in close rates"], "usecases": "B2B sales pipelines, service business follow-ups, real estate lead management, e-commerce retention.", "accent": "#ff00cc"}}, "adv": {"b2b": {"title": "B2B Focus", "icon": "🎯", "tagline": "Built for business, not consumers. We speak your language.", "what": "We exclusively serve enterprise and B2B clients — deeply understanding complex procurement, multi-stakeholder decisions, enterprise-grade security, and compliance requirements.", "features": ["Enterprise procurement and compliance expertise", "Multi-stakeholder coordination and communication", "SLA-backed delivery commitments", "Enterprise security (GDPR-ready, SOC 2 aware)", "Dedicated account manager for every engagement"], "results": ["Faster enterprise deal cycles", "Zero rework due to compliance gaps", "Solutions that scale across entire departments"], "usecases": "Fortune 500 subsidiaries, mid-market enterprises, B2B SaaS companies, professional services, manufacturing groups.", "accent": "#00d4d4"}, "research": {"title": "Research-Driven", "icon": "🔬", "tagline": "Cutting-edge today. Still relevant two years from now.", "what": "Every solution is grounded in the latest AI research from OpenAI, Anthropic, and Google DeepMind — ensuring you get capabilities your competitors have not discovered yet.", "features": ["Access to the latest LLM and AI model capabilities", "Continuous technology evaluation and upgrades", "Custom model fine-tuning for your specific domain", "Proprietary prompt engineering frameworks", "Regular AI landscape briefings for your leadership team"], "results": ["Stay 2 years ahead of competitors on AI adoption", "Solutions that improve automatically over time", "Zero risk of technology obsolescence"], "usecases": "Companies disrupted by AI, industries in digital transformation, businesses requiring state-of-the-art AI.", "accent": "#39ff14"}, "partnership": {"title": "True Partnership", "icon": "🤝", "tagline": "We do not just deliver and leave. We stay until you win.", "what": "We embed directly with your team — aligning on your KPIs, adapting to your culture, and taking shared accountability for outcomes.", "features": ["Dedicated team embedded in your workflow", "Weekly progress syncs and transparent reporting", "Shared KPIs and milestone-based accountability", "Full staff training and change management support", "Ongoing optimisation and improvements post-launch"], "results": ["98% client retention rate", "Seamless team adoption with minimal disruption", "Measurable ROI within the first 30 days"], "usecases": "Businesses let down by fire-and-forget agencies, teams needing long-term AI strategy, enterprises requiring hands-on support.", "accent": "#ff00cc"}, "deployment": {"title": "Rapid Deployment", "icon": "🚀", "tagline": "Live in weeks, not months. Results from day one.", "what": "Our agile delivery model takes you from kickoff to live deployment in as little as 4 weeks — without cutting corners on quality, security, or performance.", "features": ["Agile 2-week sprint methodology", "Pre-built automation templates and integration frameworks", "Parallel build, test and integration workstreams", "Zero-downtime deployment and rollback plan", "Same-day critical issue resolution SLA"], "results": ["4-week average time from kickoff to live", "Results visible within 7 days of launch", "3x faster than traditional development agencies"], "usecases": "Time-sensitive transformations, competitive launches, companies needing immediate ROI, projects with hard deadlines.", "accent": "#7b2fff"}}};
+  /* ===== POPUP ENGINE ===== */
+  var _POP   = {"ai": {"01": {"title": "Autonomous AI Agents", "icon": "🤖", "tagline": "AI that works while you sleep — 24/7, zero supervision.", "what": "Deploy intelligent agents that receive instructions, make multi-step decisions, and execute complex tasks completely autonomously.", "features": ["Multi-tool orchestration (web search, CRM, email, APIs)", "Self-correcting logic with error recovery", "Memory & context retention across sessions", "Real-time reporting & audit trails"], "results": ["10x productivity increase", "90% reduction in manual tasks", "Scales without hiring"], "usecases": "Lead research, competitor monitoring, data enrichment, automated reporting, client onboarding.", "accent": "#00d4d4"}, "02": {"title": "Workflow Automation", "icon": "⚡", "tagline": "Set it once. Run forever. Zero inputs needed.", "what": "Build automated workflows triggered by time, events, or data changes.", "features": ["Time-based and event-driven triggers", "Multi-system integrations (CRM, email, Slack, ERP)", "Conditional branching and smart routing", "Built-in error handling and retry logic"], "results": ["Save 40+ hours per week", "Zero manual errors", "Runs 24/7 without oversight"], "usecases": "Invoice generation, report distribution, client onboarding, CRM updates, approval workflows.", "accent": "#39ff14"}, "03": {"title": "Business Process Automation", "icon": "🏭", "tagline": "Eliminate back-office bottlenecks — permanently.", "what": "Automate payroll, HR workflows, invoice processing, and data entry.", "features": ["End-to-end HR and payroll automation", "Intelligent invoice processing and reconciliation", "Automated compliance checks and audit logs", "ERP and accounting system integration"], "results": ["90% error reduction", "60% cost savings on operations", "Full compliance and audit ready"], "usecases": "Employee onboarding, purchase orders, inventory management, accounts payable, expense approvals.", "accent": "#ff00cc"}, "04": {"title": "AI Voice Agents", "icon": "🎙️", "tagline": "Your best sales rep — available 24/7, at infinite scale.", "what": "Deploy AI voice agents that handle inbound calls and outbound outreach.", "features": ["Human-like conversational AI", "Inbound support + outbound lead qualification", "CRM integration for instant data capture", "Custom scripts, personas and escalation rules"], "results": ["Handle 1000s of calls simultaneously", "3x faster lead response time", "24/7 coverage, zero agent fatigue"], "usecases": "Lead qualification, appointment booking, payment reminders, customer support, post-sale follow-ups.", "accent": "#00d4d4"}, "05": {"title": "Social Media AI Systems", "icon": "📱", "tagline": "Full social media presence — on autopilot.", "what": "AI manages your entire social media operation.", "features": ["AI-generated content for your brand voice", "Automated scheduling across all platforms", "Engagement automation (comments & replies)", "Analytics-driven content optimisation"], "results": ["10x content output", "Consistent daily presence", "Warm leads from outreach"], "usecases": "LinkedIn B2B outreach, Instagram growth, Twitter/X engagement, YouTube content, community management.", "accent": "#39ff14"}, "06": {"title": "Customer Service Automation", "icon": "💬", "tagline": "Instant answers. Happy customers. Zero wait time.", "what": "Deploy AI that handles customer inquiries and routes support tickets.", "features": ["AI chatbot across web, email and WhatsApp", "Intelligent ticket routing and prioritisation", "Knowledge base integration for accurate answers", "Sentiment detection and smart escalation"], "results": ["80% of queries resolved without human", "Under 30 second average response time", "4.8 star average CSAT improvement"], "usecases": "FAQ handling, order tracking, refund processing, technical support, appointment rescheduling.", "accent": "#ff00cc"}, "07": {"title": "Marketing Automation", "icon": "📈", "tagline": "Personalised at scale. Convert more, spend less.", "what": "Automate the full marketing funnel.", "features": ["Behaviour-triggered email and SMS sequences", "Dynamic audience segmentation and scoring", "Multi-channel campaign orchestration", "Real-time A/B testing and optimisation"], "results": ["3x higher email open rates", "5x ROI on campaigns", "60% reduction in cost per lead"], "usecases": "Lead nurture, abandoned cart recovery, re-engagement campaigns, event marketing, upsell flows.", "accent": "#7b2fff"}, "08": {"title": "Document Processing", "icon": "📄", "tagline": "From hours to seconds — AI speed document processing.", "what": "AI extracts, classifies, validates, and routes documents automatically.", "features": ["AI-powered OCR and intelligent data extraction", "Automated classification and document routing", "Contract review and clause extraction", "ERP and accounting system sync"], "results": ["95% accuracy on data extraction", "10x faster processing", "Zero manual keying errors"], "usecases": "Invoice processing, contract management, KYC forms, purchase orders, compliance documents.", "accent": "#00d4d4"}, "09": {"title": "Smart CRM Integration", "icon": "🎯", "tagline": "No lead slips. Every deal tracked. Revenue protected.", "what": "Connect AI to your CRM to automate lead scoring and follow-up sequencing.", "features": ["AI-powered lead scoring and prioritisation", "Automated follow-up sequences by behaviour", "Real-time pipeline updates and deal alerts", "Revenue forecasting and churn prediction"], "results": ["40% increase in pipeline velocity", "2x higher close rates", "100% follow-up compliance"], "usecases": "HubSpot, Salesforce, GHL automation; lead routing; deal stage progression; win/loss analysis.", "accent": "#39ff14"}, "10": {"title": "Predictive Process Automation", "icon": "🔮", "tagline": "Stay ahead of problems before they happen.", "what": "Deploy machine learning models that forecast demand and detect anomalies.", "features": ["Demand forecasting and inventory optimisation", "Real-time anomaly detection and alerts", "Automated corrective action workflows", "Custom ML model development and deployment"], "results": ["30% reduction in operational downtime", "25% inventory cost savings", "Early warning system for risks"], "usecases": "Supply chain optimisation, fraud detection, predictive maintenance, churn prediction, dynamic pricing.", "accent": "#ff00cc"}}, "dm": {"01": {"title": "Website Design", "icon": "🖥️", "tagline": "Your brand's digital home — built to impress and convert.", "what": "Modern, fast, mobile-first websites that reflect your brand.", "features": ["Custom responsive design (desktop, tablet & mobile)", "SEO-optimised page structure from day one", "90+ Google PageSpeed score", "CMS integration (WordPress, Webflow or custom)", "Lead capture forms, live chat and conversion elements"], "results": ["3x more visitor engagement", "60% faster page load times", "Higher Google ranking"], "usecases": "Business websites, landing pages, portfolio sites, company rebrands, microsites.", "accent": "#00d4d4"}, "02": {"title": "E-Commerce Websites", "icon": "🛒", "tagline": "Your online store — open 24/7, built to sell.", "what": "Mobile-ready online stores with seamless checkout.", "features": ["Full e-commerce development (Shopify or WooCommerce)", "Mobile-optimised product pages and fast checkout", "Secure payment gateway integration", "Inventory, order and shipping management", "Abandoned cart recovery and upsell flows"], "results": ["2x higher conversion rates", "40% reduction in cart abandonment", "Scales to thousands of products"], "usecases": "Product stores, subscription boxes, B2B wholesale portals, digital downloads.", "accent": "#ff00cc"}, "03": {"title": "SEO Services", "icon": "🔍", "tagline": "Rank higher. Get found. Grow organically.", "what": "Comprehensive SEO strategy that improves search rankings.", "features": ["Full technical SEO audit and on-site fixes", "Keyword research and competitive gap analysis", "On-page and off-page optimisation", "Local SEO and Google Business Profile optimisation", "Monthly ranking reports and content recommendations"], "results": ["3x organic traffic growth in 6 months", "Top 3 Google rankings for target keywords", "70% lower cost-per-acquisition vs paid ads"], "usecases": "Local business discovery, national brand visibility, competitor keyword targeting, content marketing.", "accent": "#39ff14"}, "04": {"title": "Lead Generation Campaigns", "icon": "🎯", "tagline": "Quality leads, not just clicks. Revenue not vanity metrics.", "what": "End-to-end lead generation campaigns across Google, Meta, LinkedIn and more.", "features": ["Multi-channel strategy (Google, Meta, LinkedIn, YouTube)", "Targeted ad creative and conversion copywriting", "Landing page design and continuous A/B testing", "CRM integration and real-time lead tracking", "Automated nurture sequences post-capture"], "results": ["5x average ROI on ad spend", "60% lower cost-per-lead vs industry average", "Pipeline filled with sales-qualified prospects"], "usecases": "B2B services, real estate, healthcare, financial services, SaaS, coaching and consulting.", "accent": "#00d4d4"}, "05": {"title": "Social Media Marketing", "icon": "📲", "tagline": "Build authority. Grow your audience. Drive real revenue.", "what": "Strategic social media management that builds your brand presence.", "features": ["Content strategy planning and editorial calendar", "Professional graphic design and short-form video", "Community management and audience engagement", "Paid social campaigns for reach and conversions", "Analytics insights and monthly performance reviews"], "results": ["10x follower growth in first 90 days", "5x higher engagement rates", "Consistent inbound leads from social"], "usecases": "Brand awareness, product launches, B2B thought leadership, community building, event promotion.", "accent": "#ff00cc"}, "06": {"title": "Conversion Optimisation", "icon": "📊", "tagline": "More revenue from the traffic you already have.", "what": "CRO strategy that identifies exactly why visitors are not converting.", "features": ["User behaviour analysis (heatmaps and session recordings)", "A/B and multivariate testing across key pages", "Landing page redesign and persuasive copywriting", "Checkout and form funnel optimisation", "Trust signals, social proof and urgency elements"], "results": ["40%+ increase in conversion rate", "2x more revenue from identical traffic", "Significantly lower customer acquisition cost"], "usecases": "E-commerce checkout, service enquiry forms, SaaS trial sign-ups, landing page performance.", "accent": "#39ff14"}, "07": {"title": "Pay-Per-Click (PPC)", "icon": "💰", "tagline": "Every cent tracked, optimised, and maximised.", "what": "Data-driven PPC campaigns on Google, Meta, LinkedIn, and YouTube.", "features": ["Google Ads and Meta Ads setup and management", "Keyword bidding strategy and ongoing optimisation", "High-converting ad copy and creative design", "Audience targeting (lookalikes and retargeting)", "Weekly performance reports with clear ROI"], "results": ["4x average return on ad spend (ROAS)", "50% lower cost-per-click vs self-managed", "Campaigns profitable from week one"], "usecases": "Product sales, service enquiries, app downloads, event registrations, e-commerce promotions.", "accent": "#00d4d4"}, "08": {"title": "CRM Solutions", "icon": "🤝", "tagline": "Never lose a lead. Close every deal. Retain every customer.", "what": "We implement, configure, and automate your CRM.", "features": ["CRM setup and customisation (HubSpot, GHL, Salesforce)", "Automated lead scoring and smart assignment rules", "Follow-up email and SMS sequence automation", "Pipeline tracking, deal stages and forecasting", "Custom dashboards, reports and team analytics"], "results": ["2x faster sales cycles", "100% follow-up compliance — zero leads missed", "40% increase in close rates"], "usecases": "B2B sales pipelines, service business follow-ups, real estate lead management, e-commerce retention.", "accent": "#ff00cc"}}, "adv": {"b2b": {"title": "B2B Focus", "icon": "🎯", "tagline": "Built for business, not consumers. We speak your language.", "what": "We exclusively serve enterprise and B2B clients.", "features": ["Enterprise procurement and compliance expertise", "Multi-stakeholder coordination and communication", "SLA-backed delivery commitments", "Enterprise security (GDPR-ready, SOC 2 aware)", "Dedicated account manager for every engagement"], "results": ["Faster enterprise deal cycles", "Zero rework due to compliance gaps", "Solutions that scale across entire departments"], "usecases": "Fortune 500 subsidiaries, mid-market enterprises, B2B SaaS companies, professional services, manufacturing groups.", "accent": "#00d4d4"}, "research": {"title": "Research-Driven", "icon": "🔬", "tagline": "Cutting-edge today. Still relevant two years from now.", "what": "Every solution is grounded in the latest AI research.", "features": ["Access to the latest LLM and AI model capabilities", "Continuous technology evaluation and upgrades", "Custom model fine-tuning for your specific domain", "Proprietary prompt engineering frameworks", "Regular AI landscape briefings for your leadership team"], "results": ["Stay 2 years ahead of competitors on AI adoption", "Solutions that improve automatically over time", "Zero risk of technology obsolescence"], "usecases": "Companies disrupted by AI, industries in digital transformation, businesses requiring state-of-the-art AI.", "accent": "#39ff14"}, "partnership": {"title": "True Partnership", "icon": "🤝", "tagline": "We do not just deliver and leave. We stay until you win.", "what": "We embed directly with your team.", "features": ["Dedicated team embedded in your workflow", "Weekly progress syncs and transparent reporting", "Shared KPIs and milestone-based accountability", "Full staff training and change management support", "Ongoing optimisation and improvements post-launch"], "results": ["98% client retention rate", "Seamless team adoption with minimal disruption", "Measurable ROI within the first 30 days"], "usecases": "Businesses let down by fire-and-forget agencies, teams needing long-term AI strategy, enterprises requiring hands-on support.", "accent": "#ff00cc"}, "deployment": {"title": "Rapid Deployment", "icon": "🚀", "tagline": "Live in weeks, not months. Results from day one.", "what": "Our agile delivery model takes you from kickoff to live in as little as 4 weeks.", "features": ["Agile 2-week sprint methodology", "Pre-built automation templates and integration frameworks", "Parallel build, test and integration workstreams", "Zero-downtime deployment and rollback plan", "Same-day critical issue resolution SLA"], "results": ["4-week average time from kickoff to live", "Results visible within 7 days of launch", "3x faster than traditional development agencies"], "usecases": "Time-sensitive transformations, competitive launches, companies needing immediate ROI, projects with hard deadlines.", "accent": "#7b2fff"}}};
   var _BADGE = {"ai": "AI AUTOMATION", "dm": "DIGITAL MARKETING", "adv": "THE SYNERGISTIC ADVANTAGE"};
-
   function _openPop(type, id) {
-    var d = _POP[type] && _POP[type][id];
-    if (!d) return;
+    var d = _POP[type] && _POP[type][id]; if (!d) return;
     document.getElementById('uIcon').textContent  = d.icon;
     document.getElementById('uBadge').textContent = _BADGE[type] + ' — ' + id.toUpperCase();
     document.getElementById('uTitle').textContent = d.title;
@@ -4752,76 +4892,52 @@
     var card = document.querySelector('.uni-card');
     card.style.borderColor = d.accent + '55';
     card.style.boxShadow   = '0 0 60px ' + d.accent + '22, 0 24px 80px rgba(0,0,0,0.6)';
-    var ic = document.getElementById('uIcon');
-    ic.style.borderColor = d.accent + '55';
-    ic.style.background  = d.accent + '15';
+    document.getElementById('uIcon').style.borderColor = d.accent + '55';
+    document.getElementById('uIcon').style.background  = d.accent + '15';
     document.getElementById('uFeatures').innerHTML = d.features.map(function(f){ return '<li>' + f + '</li>'; }).join('');
     document.getElementById('uResults').innerHTML  = d.results.map(function(r){  return '<li>' + r + '</li>'; }).join('');
     document.getElementById('uUse').textContent    = d.usecases;
     var m = document.getElementById('uniModal');
-    m.classList.add('open');
-    m.setAttribute('aria-hidden', 'false');
+    m.classList.add('open'); m.setAttribute('aria-hidden','false');
     document.body.style.overflow = 'hidden';
   }
-
   function _closeModal(e) {
     if (e && e.target !== document.getElementById('uniModal')) return;
-    var m = document.getElementById('uniModal');
-    if (!m) return;
-    m.classList.remove('open');
-    m.setAttribute('aria-hidden', 'true');
+    var m = document.getElementById('uniModal'); if (!m) return;
+    m.classList.remove('open'); m.setAttribute('aria-hidden','true');
     document.body.style.overflow = '';
   }
-
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') _closeModal(); });
 
-  /* ===== URL ROUTING ===== */
+  /* ===== URL ROUTING (try-catch for file:// protocol safety) ===== */
   (function() {
-    /* Section ID → clean URL path */
     var urlMap = {
-      'home'              : '/',
-      'industries'        : '/industries',
-      'services'          : '/services',
-      'ai-automations'    : '/services/ai-automations',
-      'digital-marketing' : '/services/digital-marketing',
-      'crm-contact'       : '/contact',
-      'process'           : '/process',
-      'careers'           : '/careers',
-      'about'             : '/about'
+      'home':'/', 'industries':'/industries', 'services':'/services',
+      'ai-automations':'/services/ai-automations',
+      'digital-marketing':'/services/digital-marketing',
+      'crm-contact':'/contact', 'process':'/process',
+      'careers':'/careers', 'about':'/about'
     };
-
-    /* Reverse map: path → section ID */
     var reverseMap = {};
     Object.keys(urlMap).forEach(function(k) { reverseMap[urlMap[k]] = k; });
-
-    /* Wrap showSection to push URL on every navigation */
     var _orig = showSection;
     window.showSection = function(id) {
       _orig(id);
-      var url = urlMap[id] || ('/' + id);
-      if (window.location.pathname !== url) {
-        history.pushState({ section: id }, document.title, url);
-      }
+      try {
+        var url = urlMap[id] || ('/' + id);
+        if (window.location.pathname !== url) history.pushState({ section: id }, document.title, url);
+      } catch(e) {}
     };
-
-    /* Browser back / forward */
     window.addEventListener('popstate', function(e) {
-      var id = (e.state && e.state.section)
-             || reverseMap[window.location.pathname]
-             || 'home';
-      _orig(id);   /* use original to avoid double pushState */
+      _orig((e.state && e.state.section) || reverseMap[window.location.pathname] || 'home');
     });
-
-    /* On first load: navigate to section matching the URL */
     document.addEventListener('DOMContentLoaded', function() {
-      var path = window.location.pathname.replace(/\/$/, '') || '/';
-      var id   = reverseMap[path] || 'home';
-      if (id !== 'home') {
-        _orig(id);
-        history.replaceState({ section: id }, document.title, urlMap[id]);
-      } else {
-        history.replaceState({ section: 'home' }, document.title, '/');
-      }
+      try {
+        var path = window.location.pathname.replace(/\/$/, '') || '/';
+        var id = reverseMap[path] || 'home';
+        if (id !== 'home') { _orig(id); history.replaceState({ section: id }, document.title, urlMap[id]); }
+        else history.replaceState({ section: 'home' }, document.title, '/');
+      } catch(e) {}
     });
   })();
 
