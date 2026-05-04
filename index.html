@@ -2481,61 +2481,21 @@ nav { position: relative; z-index: 9999; }
 }
 
 
-    /* ===== OTP VERIFICATION STYLES ===== */
-    .otp-send-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      margin-top: 10px;
-      background: transparent;
-      border: 1px solid rgba(0,212,212,0.5);
-      color: var(--teal-bright);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.85rem; font-weight: 600;
-      letter-spacing: 1px;
-      padding: 10px 20px; border-radius: 8px;
-      cursor: pointer; transition: all 0.2s ease;
-      touch-action: manipulation;
+
+
+    /* ===== hCAPTCHA WIDGET ===== */
+    .hcaptcha-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 4px;
     }
-    .otp-send-btn:hover { background: rgba(0,212,212,0.1); border-color: var(--teal-bright); }
-    .otp-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .otp-send-btn.resend { font-size: 0.78rem; margin-top: 6px; padding: 7px 14px; }
-    .otp-input-wrap {
-      display: flex; gap: 10px; margin-top: 10px;
+    .hcaptcha-wrap .h-captcha { transform-origin: center; }
+    @media (max-width: 400px) {
+      .hcaptcha-wrap { transform: scale(0.88); transform-origin: left; }
     }
-    .otp-input-wrap input {
-      flex: 1;
-      background: rgba(0,212,212,0.06);
-      border: 1px solid rgba(0,212,212,0.25);
-      border-radius: 8px;
-      color: #fff;
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 6px;
-      padding: 12px 16px;
-      text-align: center;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .otp-input-wrap input:focus { border-color: var(--teal-bright); }
-    .otp-verify-btn {
-      background: linear-gradient(135deg, #00d4d4, #7b2fff);
-      border: none; border-radius: 8px;
-      color: #fff; font-weight: 700;
-      font-size: 0.9rem; letter-spacing: 1px;
-      padding: 12px 22px; cursor: pointer;
-      white-space: nowrap;
-      touch-action: manipulation;
-      transition: opacity 0.2s;
-    }
-    .otp-verify-btn:hover { opacity: 0.9; }
-    .otp-verify-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .otp-verified-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      color: #39ff14; font-size: 0.9rem; font-weight: 600;
-      margin-top: 10px;
-    }
-    .otp-timer { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; }
 
 </style>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 
 <body>
@@ -4002,23 +3962,6 @@ nav { position: relative; z-index: 9999; }
           />
         </div>
         <span class="form-error-msg" id="err-phone-number">A valid phone number is required (min 6 digits).</span>
-        <!-- OTP send button — visible once phone is entered -->
-        <button type="button" class="otp-send-btn" id="otpSendBtn" onclick="sendOtp()" disabled>
-          📱 Send OTP to verify
-        </button>
-        <div id="otp-entry-section" style="display:none;">
-          <div class="otp-input-wrap">
-            <input type="number" id="otp-input" maxlength="6" placeholder="6-digit code"
-                   aria-label="Enter OTP" oninput="this.value=this.value.slice(0,6)" />
-            <button type="button" class="otp-verify-btn" id="otpVerifyBtn" onclick="verifyOtp()">Verify</button>
-          </div>
-          <div class="otp-timer" id="otp-timer"></div>
-          <button type="button" class="otp-send-btn resend" id="otpResendBtn"
-                  onclick="sendOtp(true)" style="display:none;">↩ Resend OTP</button>
-        </div>
-        <div class="otp-verified-badge" id="otp-verified-badge" style="display:none;">
-          ✅ Phone number verified
-        </div>
       </div>
       <div class="form-field">
         <label for="service">Service of Interest</label>
@@ -4035,6 +3978,16 @@ nav { position: relative; z-index: 9999; }
         <label for="message">Message</label>
         <textarea id="message" name="message" placeholder="Tell us about your business goals..."></textarea>
       </div>
+      <!-- hCaptcha: image puzzle bot protection -->
+      <div class="hcaptcha-wrap">
+        <div class="h-captcha"
+             data-sitekey="10000000-ffff-ffff-ffff-000000000001"
+             data-theme="dark"
+             data-size="normal"
+             id="hcaptcha-widget">
+        </div>
+      </div>
+      <span class="form-error-msg" id="err-captcha" style="text-align:center;">Please complete the captcha to continue.</span>
       <button type="button" class="form-submit" id="leadSubmitBtn" onclick="submitLeadForm()">Send Message → Book Free Consultation</button>
     </form>
   </div>
@@ -4569,14 +4522,17 @@ nav { position: relative; z-index: 9999; }
         return;
       }
 
-      /* ── OTP gate: phone must be verified before submission ── */
-      if (!window._otpVerified) {
-        showFormMsg('⚠️ Please verify your phone number with OTP before submitting.', 'error');
-        var sendBtn = document.getElementById('otpSendBtn');
-        if (sendBtn) { sendBtn.style.display = 'inline-flex'; sendBtn.disabled = false; }
-        sendBtn && sendBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      /* ── hCaptcha gate ── */
+      var hcToken = (typeof hcaptcha !== 'undefined') ? hcaptcha.getResponse() : '';
+      if (!hcToken) {
+        var errCap = document.getElementById('err-captcha');
+        if (errCap) { errCap.style.display = 'block'; }
+        showFormMsg('⚠️ Please complete the image captcha before submitting.', 'error');
+        document.getElementById('hcaptcha-widget')?.scrollIntoView({ behavior:'smooth', block:'center' });
         return;
       }
+      if (errCap) errCap.style.display = 'none';
+
 
       /* ── Loading state ── */
       var btn = document.getElementById('leadSubmitBtn');
@@ -4624,6 +4580,7 @@ nav { position: relative; z-index: 9999; }
             }, 5000);
           }
           /* Reset form fields */
+          if (typeof hcaptcha !== 'undefined') hcaptcha.reset();
           ['fname','lname','email','company','phone-number','service','message'].forEach(function(id) {
             var el = document.getElementById(id);
             if (el) { el.tagName === 'SELECT' ? el.selectedIndex = 0 : el.value = ''; }
@@ -5024,126 +4981,6 @@ nav { position: relative; z-index: 9999; }
   })();
 
   
-  /* ===== OTP VERIFICATION ENGINE ===== */
-  (function() {
-    var _otpVerified  = false;
-    var _timerHandle  = null;
-
-    // Enable Send OTP button as soon as phone number has 6+ digits
-    var phoneInput = document.getElementById('phone-number');
-    if (phoneInput) {
-      phoneInput.addEventListener('input', function() {
-        var digits = phoneInput.value.replace(/\D/g,'');
-        var btn = document.getElementById('otpSendBtn');
-        if (btn) btn.disabled = (digits.length < 6);
-        // Reset verification if phone changes
-        if (_otpVerified) {
-          _otpVerified = false;
-          window._otpVerified = false;
-          document.getElementById('otp-verified-badge').style.display = 'none';
-          document.getElementById('otp-entry-section').style.display = 'none';
-          document.getElementById('otp-input').value = '';
-        }
-      });
-    }
-
-    function getFullPhone() {
-      var pc  = document.getElementById('phone-code')?.value  || '+1';
-      var pcc = document.getElementById('phone-code-custom')?.value?.trim() || '';
-      var pn  = document.getElementById('phone-number')?.value?.trim() || '';
-      var cc  = (pc === 'other') ? (pcc || '+1') : pc;
-      var digits = pn.replace(/\D/g,'');
-      return cc + digits;
-    }
-
-    window.sendOtp = function(isResend) {
-      var phone = getFullPhone();
-      if (phone.replace(/\D/g,'').length < 7) {
-        showFormMsg('Please enter a valid phone number first.', 'error');
-        return;
-      }
-      var sendBtn   = document.getElementById('otpSendBtn');
-      var resendBtn = document.getElementById('otpResendBtn');
-      var section   = document.getElementById('otp-entry-section');
-      var timerEl   = document.getElementById('otp-timer');
-
-      if (sendBtn)   { sendBtn.disabled = true; sendBtn.textContent = '⏳ Sending…'; }
-      if (resendBtn) { resendBtn.disabled = true; }
-
-      fetch('/api/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.success) {
-          if (section) section.style.display = 'block';
-          if (sendBtn) { sendBtn.textContent = '📱 Send OTP to verify'; sendBtn.style.display = 'none'; }
-          if (resendBtn) resendBtn.style.display = 'inline-flex';
-          startTimer(timerEl, resendBtn);
-          showFormMsg('OTP sent to ' + phone + '. Enter it below.', 'success');
-        } else {
-          showFormMsg('⚠️ Could not send OTP: ' + (data.error || 'Unknown error'), 'error');
-          if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = '📱 Send OTP to verify'; }
-          if (resendBtn) resendBtn.disabled = false;
-        }
-      })
-      .catch(function(e) {
-        showFormMsg('⚠️ Network error sending OTP. Please try again.', 'error');
-        if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = '📱 Send OTP to verify'; }
-        if (resendBtn) resendBtn.disabled = false;
-      });
-    };
-
-    window.verifyOtp = function() {
-      var phone = getFullPhone();
-      var code  = (document.getElementById('otp-input')?.value || '').trim();
-      if (code.length !== 6) { showFormMsg('Please enter the 6-digit OTP.', 'error'); return; }
-
-      var verifyBtn = document.getElementById('otpVerifyBtn');
-      if (verifyBtn) { verifyBtn.disabled = true; verifyBtn.textContent = '…'; }
-
-      fetch('/api/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone, code: code })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.approved) {
-          _otpVerified = true;
-          window._otpVerified = true;
-          document.getElementById('otp-entry-section').style.display = 'none';
-          document.getElementById('otp-verified-badge').style.display = 'flex';
-          if (_timerHandle) clearInterval(_timerHandle);
-          showFormMsg('✅ Phone verified! You can now submit the form.', 'success');
-        } else {
-          showFormMsg('❌ Incorrect OTP. Please try again or resend.', 'error');
-          if (verifyBtn) { verifyBtn.disabled = false; verifyBtn.textContent = 'Verify'; }
-        }
-      })
-      .catch(function(e) {
-        showFormMsg('⚠️ Network error verifying OTP.', 'error');
-        if (verifyBtn) { verifyBtn.disabled = false; verifyBtn.textContent = 'Verify'; }
-      });
-    };
-
-    function startTimer(timerEl, resendBtn) {
-      if (_timerHandle) clearInterval(_timerHandle);
-      var secs = 120; // 2-minute window
-      if (resendBtn) resendBtn.disabled = true;
-      _timerHandle = setInterval(function() {
-        secs--;
-        if (timerEl) timerEl.textContent = 'OTP expires in ' + secs + 's';
-        if (secs <= 0) {
-          clearInterval(_timerHandle);
-          if (timerEl) timerEl.textContent = 'OTP expired. Please resend.';
-          if (resendBtn) resendBtn.disabled = false;
-        }
-      }, 1000);
-    }
-  })();
 
   </script>
 
