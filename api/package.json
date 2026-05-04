@@ -2,5 +2,5 @@
   "name": "synergistic-ai-api",
   "version": "1.0.0",
   "description": "Vercel serverless API — email OTP verification",
-  "engines": { "node": "18.x" }
+  "engines": { "node": "24.x" }
 }
