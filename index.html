@@ -2479,23 +2479,48 @@ nav { position: relative; z-index: 9999; }
   .careers-perks { grid-template-columns: 1fr; }
   .about-values { grid-template-columns: 1fr; }
 }
-
-
-
-
-    /* ===== hCAPTCHA WIDGET ===== */
-    .hcaptcha-wrap {
-      display: flex;
-      justify-content: center;
-      margin: 8px 0 4px;
+    /* ── Email OTP ── */
+    .otp-send-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px; padding: 8px 18px;
+      background: transparent; border: 1px solid var(--accent);
+      color: var(--accent); border-radius: 6px;
+      font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, color 0.2s;
     }
-    .hcaptcha-wrap .h-captcha { transform-origin: center; }
-    @media (max-width: 400px) {
-      .hcaptcha-wrap { transform: scale(0.88); transform-origin: left; }
+    .otp-send-btn:hover { background: var(--accent); color: #000; }
+    .otp-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .otp-section {
+      margin-top: 10px; display: none;
+      flex-direction: column; gap: 8px;
     }
+    .otp-section.visible { display: flex; }
+    .otp-input-row { display: flex; gap: 8px; align-items: center; }
+    #otp-input {
+      flex: 1; padding: 10px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px; color: #fff;
+      font-size: 1.1rem; letter-spacing: 0.25em;
+      text-align: center; outline: none;
+    }
+    #otp-input:focus { border-color: var(--accent); }
+    .otp-verify-btn {
+      padding: 10px 18px; background: var(--accent);
+      color: #000; border: none; border-radius: 8px;
+      font-weight: 700; font-size: 0.9rem;
+      cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+    }
+    .otp-verify-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .otp-countdown { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+    .otp-verified-badge {
+      display: none; align-items: center; gap: 6px;
+      color: #39ff14; font-size: 0.88rem;
+      font-weight: 600; margin-top: 6px;
+    }
+    .otp-verified-badge.visible { display: flex; }
 
 </style>
-<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 
 <body>
@@ -3925,6 +3950,18 @@ nav { position: relative; z-index: 9999; }
         <label for="email">Business Email</label>
         <input type="email" id="email" name="email" placeholder="john@company.com" autocomplete="email" />
         <span class="form-error-msg" id="err-email">A valid business email is required.</span>
+        <button type="button" class="otp-send-btn" id="otp-send-btn" onclick="sendEmailOTP()">
+          📧 Send Verification Code
+        </button>
+        <div class="otp-section" id="otp-section">
+          <div class="otp-input-row">
+            <input type="text" id="otp-input" maxlength="6" placeholder="6-digit code" inputmode="numeric" autocomplete="one-time-code" />
+            <button type="button" class="otp-verify-btn" id="otp-verify-btn" onclick="verifyEmailOTP()">Verify →</button>
+          </div>
+          <span class="otp-countdown" id="otp-countdown"></span>
+          <span class="form-error-msg" id="err-otp" style="display:none;">Invalid or expired code. Please try again.</span>
+        </div>
+        <div class="otp-verified-badge" id="otp-verified-badge">✅ Email verified</div>
       </div>
       <div class="form-field">
         <label for="company">Company</label>
@@ -3978,16 +4015,7 @@ nav { position: relative; z-index: 9999; }
         <label for="message">Message</label>
         <textarea id="message" name="message" placeholder="Tell us about your business goals..."></textarea>
       </div>
-      <!-- hCaptcha: image puzzle bot protection -->
-      <div class="hcaptcha-wrap">
-        <div class="h-captcha"
-             data-sitekey="10000000-ffff-ffff-ffff-000000000001"
-             data-theme="dark"
-             data-size="normal"
-             id="hcaptcha-widget">
-        </div>
-      </div>
-      <span class="form-error-msg" id="err-captcha" style="text-align:center;">Please complete the captcha to continue.</span>
+      
       <button type="button" class="form-submit" id="leadSubmitBtn" onclick="submitLeadForm()">Send Message → Book Free Consultation</button>
     </form>
   </div>
@@ -4477,7 +4505,132 @@ nav { position: relative; z-index: 9999; }
        Calls /functions/v1/submit-lead — bypasses RLS entirely.
        No SDK, no CORS issues, no anon role complications.
     ============================================================ */
-    function submitLeadForm() {
+
+    /* ══════════════════════════════════════════════════════
+       EMAIL OTP — send & verify via Vercel API routes
+       Uses stateless HMAC so no DB needed.
+    ══════════════════════════════════════════════════════ */
+    var _otpVerified   = false;   // set true after successful verify
+    var _otpToken      = '';      // HMAC token returned by /api/send-email-otp
+    var _otpCountdown  = null;    // interval handle
+
+    function sendEmailOTP() {
+      var emailEl  = document.getElementById('email');
+      var em       = (emailEl?.value || '').trim();
+      var emailRx  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailRx.test(em)) {
+        var errEl = document.getElementById('err-email');
+        if (errEl) { errEl.style.display = 'block'; }
+        emailEl?.focus();
+        return;
+      }
+
+      var btn = document.getElementById('otp-send-btn');
+      var origTxt = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = 'Sending…'; }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/send-email-otp', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) return;
+        if (btn) { btn.disabled = false; btn.innerHTML = origTxt; }
+
+        if (xhr.status === 200) {
+          var data = JSON.parse(xhr.responseText);
+          _otpToken = data.token;
+          _otpVerified = false;
+
+          /* Show OTP section */
+          var sec = document.getElementById('otp-section');
+          if (sec) sec.classList.add('visible');
+
+          /* Update send button text + start resend cooldown (60 s) */
+          if (btn) {
+            btn.innerHTML = '🔄 Resend Code';
+            btn.disabled = true;
+          }
+          var secs = 60;
+          var cdEl = document.getElementById('otp-countdown');
+          if (cdEl) cdEl.textContent = 'Code sent! Resend available in ' + secs + 's';
+          if (_otpCountdown) clearInterval(_otpCountdown);
+          _otpCountdown = setInterval(function() {
+            secs--;
+            if (cdEl) cdEl.textContent = secs > 0
+              ? 'Resend available in ' + secs + 's  (code valid 10 min)'
+              : 'You can now request a new code.';
+            if (secs <= 0) {
+              clearInterval(_otpCountdown);
+              if (btn) btn.disabled = false;
+            }
+          }, 1000);
+
+          /* Focus OTP input */
+          setTimeout(function() {
+            var inp = document.getElementById('otp-input');
+            if (inp) inp.focus();
+          }, 200);
+
+        } else {
+          var msg = 'Failed to send code. Please try again.';
+          try { msg = JSON.parse(xhr.responseText).error || msg; } catch(e) {}
+          showFormMsg('⚠️ ' + msg, 'error');
+        }
+      };
+      xhr.onerror = function() {
+        if (btn) { btn.disabled = false; btn.innerHTML = origTxt; }
+        showFormMsg('⚠️ Network error. Please try again.', 'error');
+      };
+      xhr.send(JSON.stringify({ email: em }));
+    }
+
+    function verifyEmailOTP() {
+      var em  = (document.getElementById('email')?.value || '').trim();
+      var otp = (document.getElementById('otp-input')?.value || '').trim();
+      var errEl = document.getElementById('err-otp');
+
+      if (!otp || otp.length !== 6) {
+        if (errEl) { errEl.textContent = 'Please enter the 6-digit code.'; errEl.style.display = 'block'; }
+        return;
+      }
+      if (errEl) errEl.style.display = 'none';
+
+      var vBtn = document.getElementById('otp-verify-btn');
+      if (vBtn) { vBtn.disabled = true; vBtn.textContent = 'Checking…'; }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/verify-email-otp', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) return;
+
+        if (xhr.status === 200) {
+          _otpVerified = true;
+          /* Hide OTP section, show verified badge, hide send button */
+          var sec = document.getElementById('otp-section');
+          if (sec) sec.classList.remove('visible');
+          var badge = document.getElementById('otp-verified-badge');
+          if (badge) badge.classList.add('visible');
+          var sBtn = document.getElementById('otp-send-btn');
+          if (sBtn) sBtn.style.display = 'none';
+          if (_otpCountdown) clearInterval(_otpCountdown);
+        } else {
+          _otpVerified = false;
+          var msg = 'Invalid or expired code. Please try again.';
+          try { msg = JSON.parse(xhr.responseText).error || msg; } catch(e) {}
+          if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+          if (vBtn) { vBtn.disabled = false; vBtn.textContent = 'Verify →'; }
+        }
+      };
+      xhr.onerror = function() {
+        if (vBtn) { vBtn.disabled = false; vBtn.textContent = 'Verify →'; }
+        showFormMsg('⚠️ Network error. Please try again.', 'error');
+      };
+      xhr.send(JSON.stringify({ email: em, otp: otp, token: _otpToken }));
+    }
+
+        function submitLeadForm() {
       /* ── file:// protocol check ── */
       if (window.location.protocol === 'file:') {
         showFormMsg(
@@ -4522,17 +4675,13 @@ nav { position: relative; z-index: 9999; }
         return;
       }
 
-      /* ── hCaptcha gate ── */
-      var hcToken = (typeof hcaptcha !== 'undefined') ? hcaptcha.getResponse() : '';
-      if (!hcToken) {
-        var errCap = document.getElementById('err-captcha');
-        if (errCap) { errCap.style.display = 'block'; }
-        showFormMsg('⚠️ Please complete the image captcha before submitting.', 'error');
-        document.getElementById('hcaptcha-widget')?.scrollIntoView({ behavior:'smooth', block:'center' });
+      /* ── Email OTP gate ── */
+      if (!_otpVerified) {
+        showFormMsg('⚠️ Please verify your email address with the code before submitting.', 'error');
+        var sBtn = document.getElementById('otp-send-btn');
+        if (sBtn) sBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-      if (errCap) errCap.style.display = 'none';
-
 
       /* ── Loading state ── */
       var btn = document.getElementById('leadSubmitBtn');
@@ -4579,8 +4728,19 @@ nav { position: relative; z-index: 9999; }
               btn.disabled = false;
             }, 5000);
           }
+
+          /* Reset OTP state */
+          _otpVerified = false;
+          _otpToken    = '';
+          var badge = document.getElementById('otp-verified-badge');
+          if (badge) badge.classList.remove('visible');
+          var sBtn = document.getElementById('otp-send-btn');
+          if (sBtn) { sBtn.style.display = ''; sBtn.innerHTML = '📧 Send Verification Code'; }
+          var sec = document.getElementById('otp-section');
+          if (sec) sec.classList.remove('visible');
+          var otpInp = document.getElementById('otp-input');
+          if (otpInp) otpInp.value = '';
           /* Reset form fields */
-          if (typeof hcaptcha !== 'undefined') hcaptcha.reset();
           ['fname','lname','email','company','phone-number','service','message'].forEach(function(id) {
             var el = document.getElementById(id);
             if (el) { el.tagName === 'SELECT' ? el.selectedIndex = 0 : el.value = ''; }
