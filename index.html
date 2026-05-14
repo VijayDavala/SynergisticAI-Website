@@ -2494,7 +2494,7 @@ nav { position: relative; z-index: 9999; }
       background: rgba(0,0,0,0.72);
       backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       z-index: 99999; align-items: center; justify-content: center; padding: 16px;
-      animation: cbFadeIn 0.5s ease forwards 30s;
+      animation: cbFadeIn 0.5s ease forwards 25s;
     }
     @keyframes cbFadeIn { to { opacity: 1; pointer-events: auto; } }
     #cb-overlay.visible { opacity: 1; pointer-events: auto; animation: none; }
@@ -5056,6 +5056,7 @@ nav { position: relative; z-index: 9999; }
           </div>
           <div class="cb-field"><input type="tel"   id="cb-phone" placeholder="Phone Number"    required autocomplete="tel"   /></div>
           <div class="cb-field"><input type="email" id="cb-email" placeholder="Business Email"  required autocomplete="email" /></div>
+          <div class="cb-field"><input type="text"  id="cb-company" placeholder="Company Name" autocomplete="organization" /></div>
           <div class="cb-field">
             <select id="cb-service" required style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);border-radius:8px;color:#fff;font-size:0.94rem;font-family:'Rajdhani',sans-serif;outline:none;box-sizing:border-box;appearance:none;-webkit-appearance:none;cursor:pointer;">
               <option value="" disabled selected style="background:#0a1a2e;">Service of Interest</option>
@@ -5092,45 +5093,47 @@ nav { position: relative; z-index: 9999; }
   <script>
 /* ══ CALL-BACK POPUP ══ */
 (function() {
-  // If already dismissed this session, hide immediately before CSS animation shows it
-  if (sessionStorage.getItem('cbShown')) {
+  // If user has already submitted the form this session, suppress permanently
+  if (sessionStorage.getItem('cbSubmitted')) {
     var style = document.createElement('style');
     style.textContent = '#cb-overlay { animation: none !important; opacity: 0 !important; pointer-events: none !important; display: none !important; }';
     document.head.appendChild(style);
     return;
   }
 
-  // JS timer as primary trigger (more reliable than CSS animation alone)
+  function showPopup() {
+    var ov = document.getElementById('cb-overlay');
+    if (!ov || sessionStorage.getItem('cbSubmitted')) return;
+    ov.style.display       = '';
+    ov.style.opacity       = '1';
+    ov.style.pointerEvents = 'auto';
+    ov.style.animation     = 'none';
+    ov.classList.remove('cb-hidden');
+    ov.classList.add('visible');
+  }
+
   function initPopup() {
     var ov = document.getElementById('cb-overlay');
     if (!ov) return;
 
-    // Attach close-on-backdrop-click
+    // Close on backdrop click
     ov.addEventListener('click', function(e) {
       if (e.target === ov) closeCBPopup();
     });
 
-    // Attach Escape key close
+    // Close on Escape key
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') closeCBPopup();
     });
 
-    // JS 30-second timer (belt to CSS animation's suspenders)
-    setTimeout(function() {
-      if (!sessionStorage.getItem('cbShown')) {
-        ov.style.opacity        = '1';
-        ov.style.pointerEvents  = 'auto';
-        ov.style.animation      = 'none';
-        ov.classList.add('visible');
-      }
-    }, 30000);
+    // Initial show after 25 seconds
+    setTimeout(showPopup, 25000);
   }
 
-  // Fire as soon as possible
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initPopup);
   } else {
-    initPopup(); // DOM already ready
+    initPopup();
   }
 })();
 
@@ -5144,18 +5147,32 @@ function closeCBPopup() {
     ov.classList.remove('visible');
     ov.classList.add('cb-hidden');
   }
-  sessionStorage.setItem('cbShown', '1');
+  // Re-appear after 30 seconds if user hasn't submitted the form yet
+  setTimeout(function() {
+    if (!sessionStorage.getItem('cbSubmitted')) {
+      var ov2 = document.getElementById('cb-overlay');
+      if (ov2) {
+        ov2.style.display       = '';
+        ov2.style.opacity       = '1';
+        ov2.style.pointerEvents = 'auto';
+        ov2.style.animation     = 'none';
+        ov2.classList.remove('cb-hidden');
+        ov2.classList.add('visible');
+      }
+    }
+  }, 30000);
 }
 
 function submitCBForm(e) {
   e.preventDefault();
-  var fname = (document.getElementById('cb-fname')   || {value:''}).value.trim();
-  var lname = (document.getElementById('cb-lname')   || {value:''}).value.trim();
-  var phone = (document.getElementById('cb-phone')   || {value:''}).value.trim();
-  var email = (document.getElementById('cb-email')   || {value:''}).value.trim();
-  var svc   = (document.getElementById('cb-service') || {value:''}).value.trim();
-  var errEl = document.getElementById('cb-err');
-  var btn   = document.getElementById('cb-submit');
+  var fname   = (document.getElementById('cb-fname')   || {value:''}).value.trim();
+  var lname   = (document.getElementById('cb-lname')   || {value:''}).value.trim();
+  var phone   = (document.getElementById('cb-phone')   || {value:''}).value.trim();
+  var email   = (document.getElementById('cb-email')   || {value:''}).value.trim();
+  var company = (document.getElementById('cb-company') || {value:''}).value.trim();
+  var svc     = (document.getElementById('cb-service') || {value:''}).value.trim();
+  var errEl   = document.getElementById('cb-err');
+  var btn     = document.getElementById('cb-submit');
 
   if (!fname || !lname || !phone || !email) {
     if (errEl) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; }
@@ -5168,7 +5185,7 @@ function submitCBForm(e) {
     first_name:          fname,
     last_name:           lname,
     business_email:      email,
-    company:             'Not provided',
+    company:             company || 'Not provided',
     phone_number:        phone.replace(/[^0-9]/g, '') || phone,
     phone_country_code:  '+1',
     service_of_interest: svc || 'Not specified',
@@ -5184,9 +5201,13 @@ function submitCBForm(e) {
   xhr.setRequestHeader('Prefer',        'return=minimal');
   xhr.onreadystatechange = function() {
     if (xhr.readyState !== 4) return;
+    sessionStorage.setItem('cbSubmitted', '1');
     window.location.href = '/thank-you';
   };
-  xhr.onerror = function() { window.location.href = '/thank-you'; };
+  xhr.onerror = function() {
+    sessionStorage.setItem('cbSubmitted', '1');
+    window.location.href = '/thank-you';
+  };
   xhr.send(payload);
 }
 </script>
@@ -5196,4 +5217,4 @@ function submitCBForm(e) {
   <!-- End LinkedIn Insight Tag -->
 
 </body>
-</html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+</html>
