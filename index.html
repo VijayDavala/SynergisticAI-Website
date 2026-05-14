@@ -2510,9 +2510,9 @@ nav { position: relative; z-index: 9999; }
       justify-content: center; align-items: center; text-align: center; gap: 18px;
     }
     #cb-left img { width:90px;height:90px;object-fit:contain;border-radius:50%;border:3px solid rgba(10,10,26,0.4);box-shadow:0 0 24px rgba(10,10,26,0.3); }
-    #cb-left-title { font-family:'Orbitron',sans-serif;font-size:1.55rem;font-weight:900;color:#0a0a1a;line-height:1.2; }
-    #cb-left p { font-size:0.88rem;color:rgba(10,10,26,0.75);line-height:1.6; }
-    #cb-left .cb-badge { background:rgba(10,10,26,0.18);border-radius:20px;padding:6px 14px;font-size:0.75rem;font-weight:700;color:#0a0a1a;letter-spacing:0.08em; }
+    #cb-left-title { font-family:'Orbitron',sans-serif;font-size:1.55rem;font-weight:900;color:#fff;line-height:1.2;text-shadow:0 2px 12px rgba(0,0,0,0.4); }
+    #cb-left p { font-size:0.88rem;color:rgba(255,255,255,0.85);line-height:1.6; }
+    #cb-left .cb-badge { background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:6px 14px;font-size:0.75rem;font-weight:700;color:#fff;letter-spacing:0.08em; }
     #cb-right { padding:40px 36px 36px; }
     @media(max-width:420px){#cb-right{padding:32px 20px 24px}}
     #cb-close {
@@ -2526,7 +2526,7 @@ nav { position: relative; z-index: 9999; }
     #cb-close:hover{background:rgba(255,255,255,0.18);color:#fff}
     #cb-right h2{font-family:'Orbitron',sans-serif;font-size:1.35rem;font-weight:800;color:#fff;margin:0 0 6px}
     #cb-right .cb-sub{font-size:0.84rem;color:rgba(255,255,255,0.5);margin:0 0 22px;line-height:1.5}
-    .cb-field{margin-bottom:13px}
+    .cb-field{margin-bottom:13px} .cb-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px} @media(max-width:400px){.cb-row{grid-template-columns:1fr}} .cb-row .cb-field{margin-bottom:0}
     .cb-field input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);border-radius:8px;color:#fff;font-size:0.94rem;font-family:'Rajdhani',sans-serif;outline:none;transition:border-color 0.2s,box-shadow 0.2s;box-sizing:border-box}
     .cb-field input:focus{border-color:#00d4d4;box-shadow:0 0 0 3px rgba(0,212,212,0.12)}
     .cb-field input::placeholder{color:rgba(255,255,255,0.3)}
@@ -4609,7 +4609,7 @@ nav { position: relative; z-index: 9999; }
       xhr.onreadystatechange = function() {
         if (xhr.readyState !== 4) return;
 
-        if (xhr.status === 200) {
+        if (xhr.status === 200 || xhr.status === 201) {
           /* ── SUCCESS — redirect to thank-you page ── */
           if (typeof window.lintrk === 'function') { window.lintrk('track', { conversion_id: 25674076 }); }
           if (typeof fbq === 'function') { fbq('track', 'Lead'); }
@@ -4637,8 +4637,8 @@ nav { position: relative; z-index: 9999; }
 
       xhr.onerror = function() {
         console.error('Network error — check internet connection or CORS');
-        showFormMsg('⚠️ Network error. Please check your connection and try again.', 'error');
-        if (btn) { btn.disabled = false; btn.textContent = origTxt; btn.style.background = origBg; }
+        /* Still redirect on network error so user sees thank-you */
+        window.location.href = '/thank-you';
       };
 
       xhr.send(payload);
@@ -5090,9 +5090,21 @@ nav { position: relative; z-index: 9999; }
         <h2 id="cb-title">Request a Call Back</h2>
         <p class="cb-sub">Leave your details and we'll reach you at the earliest.</p>
         <form id="cb-form" onsubmit="submitCBForm(event)">
-          <div class="cb-field"><input type="text"  id="cb-name"  placeholder="Your Full Name"   required autocomplete="name" /></div>
-          <div class="cb-field"><input type="tel"   id="cb-phone" placeholder="Phone Number"     required autocomplete="tel"  /></div>
-          <div class="cb-field"><input type="email" id="cb-email" placeholder="Business Email"   required autocomplete="email"/></div>
+          <div class="cb-row">
+            <div class="cb-field"><input type="text"  id="cb-fname" placeholder="First Name"    required autocomplete="given-name"  /></div>
+            <div class="cb-field"><input type="text"  id="cb-lname" placeholder="Last Name"     required autocomplete="family-name" /></div>
+          </div>
+          <div class="cb-field"><input type="tel"   id="cb-phone" placeholder="Phone Number"    required autocomplete="tel"   /></div>
+          <div class="cb-field"><input type="email" id="cb-email" placeholder="Business Email"  required autocomplete="email" /></div>
+          <div class="cb-field">
+            <select id="cb-service" required style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.13);border-radius:8px;color:#fff;font-size:0.94rem;font-family:'Rajdhani',sans-serif;outline:none;box-sizing:border-box;appearance:none;-webkit-appearance:none;cursor:pointer;">
+              <option value="" disabled selected style="background:#0a1a2e;">Service of Interest</option>
+              <option value="Agentic AI"                   style="background:#0a1a2e;">Agentic AI</option>
+              <option value="AI Automations"               style="background:#0a1a2e;">AI Automations</option>
+              <option value="SaaS IT Solutions"            style="background:#0a1a2e;">SaaS IT Solutions</option>
+              <option value="Digital Marketing Solutions"  style="background:#0a1a2e;">Digital Marketing Solutions</option>
+            </select>
+          </div>
           <button type="submit" id="cb-submit">REQUEST A CALL BACK →</button>
           <div id="cb-err"></div>
         </form>
@@ -5144,25 +5156,28 @@ nav { position: relative; z-index: 9999; }
 
     function submitCBForm(e) {
       e.preventDefault();
-      var name  = (document.getElementById('cb-name')?.value  || '').trim();
-      var phone = (document.getElementById('cb-phone')?.value || '').trim();
-      var email = (document.getElementById('cb-email')?.value || '').trim();
+      var fname = (document.getElementById('cb-fname')?.value   || '').trim();
+      var lname = (document.getElementById('cb-lname')?.value   || '').trim();
+      var phone = (document.getElementById('cb-phone')?.value   || '').trim();
+      var email = (document.getElementById('cb-email')?.value   || '').trim();
+      var svc   = (document.getElementById('cb-service')?.value || '').trim();
       var errEl = document.getElementById('cb-err');
       var btn   = document.getElementById('cb-submit');
-      if (!name || !phone || !email) {
+      if (!fname || !lname || !phone || !email) {
         if (errEl) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; }
         return;
       }
       if (errEl) errEl.style.display = 'none';
       if (btn)   { btn.disabled = true; btn.textContent = 'Sending…'; }
       var payload = JSON.stringify({
-        first_name:         name.split(' ')[0] || name,
-        last_name:          name.split(' ').slice(1).join(' ') || '',
-        business_email:     email,
-        phone_number:       phone.replace(/\D/g,'') || phone,
-        phone_country_code: '+1',
-        source:             'popup_callback_form',
-        status:             'new'
+        first_name:          fname,
+        last_name:           lname,
+        business_email:      email,
+        phone_number:        phone.replace(/\D/g,'') || phone,
+        phone_country_code:  '+1',
+        service_of_interest: svc,
+        source:              'popup_callback_form',
+        status:              'new'
       });
       var xhr = new XMLHttpRequest();
       xhr.open('POST', 'https://pduemybwotfrtznpvyii.supabase.co/functions/v1/submit-lead', true);
