@@ -4530,69 +4530,43 @@ nav { position: relative; z-index: 9999; }
       }
     }
 
-    /* ============================================================
-       LEAD FORM — SUPABASE EDGE FUNCTION (server-side insert)
-       Calls /functions/v1/submit-lead — bypasses RLS entirely.
-       No SDK, no CORS issues, no anon role complications.
-    ============================================================ */
-
-    
-
-        function submitLeadForm() {
-      /* ── file:// protocol check ── */
+    /* ── LEAD FORM — Supabase REST API direct insert ── */
+    function submitLeadForm() {
       if (window.location.protocol === 'file:') {
-        showFormMsg(
-          '⚠️ This form requires the website to be hosted on a server.<br>'
-          + 'Please open the website via a web server (e.g. VS Code Live Server, '
-          + 'or upload to your hosting) instead of opening the HTML file directly.',
-          'error'
-        );
+        showFormMsg('⚠️ Please open via a web server, not as a local file.', 'error');
         return;
       }
 
-      /* Edge Function URL — server-side insert with service_role key */
-      var EDGE_URL = 'https://pduemybwotfrtznpvyii.supabase.co/functions/v1/submit-lead';
-      var ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg';
-
       /* ── Read field values ── */
-      var fn  = (document.getElementById('fname')?.value         || '').trim();
-      var ln  = (document.getElementById('lname')?.value         || '').trim();
-      var em  = (document.getElementById('email')?.value         || '').trim();
-      var co  = (document.getElementById('company')?.value       || '').trim();
-      var pc  = (document.getElementById('phone-code')?.value    || '+1');
+      var fn  = (document.getElementById('fname')?.value            || '').trim();
+      var ln  = (document.getElementById('lname')?.value            || '').trim();
+      var em  = (document.getElementById('email')?.value            || '').trim();
+      var co  = (document.getElementById('company')?.value          || '').trim();
+      var pc  = (document.getElementById('phone-code')?.value       || '+1');
       var pcc = (document.getElementById('phone-code-custom')?.value || '').trim();
-      var pn  = (document.getElementById('phone-number')?.value  || '').trim();
-      var sv  = (document.getElementById('service')?.value       || '');
-      var msg = (document.getElementById('message')?.value       || '').trim();
+      var pn  = (document.getElementById('phone-number')?.value     || '').trim();
+      var sv  = (document.getElementById('service')?.value          || '');
+      var msg = (document.getElementById('message')?.value          || '').trim();
 
       var cc     = (pc === 'other') ? (pcc || '+1') : pc;
       var digits = pn.replace(/\D/g, '');
 
       /* ── Validate ── */
       var emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      var errors = [];
-      if (!fn)                   errors.push('First Name is required.');
-      if (!ln)                   errors.push('Last Name is required.');
-      if (!emailRx.test(em))     errors.push('A valid business email is required.');
-      if (!co)                   errors.push('Company name is required.');
-      if (digits.length < 6)     errors.push('A valid phone number is required.');
-      if (!sv)                   errors.push('Please select a service of interest.');
+      var errs = [];
+      if (!fn)               errs.push('First Name is required.');
+      if (!ln)               errs.push('Last Name is required.');
+      if (!emailRx.test(em)) errs.push('A valid business email is required.');
+      if (!co)               errs.push('Company name is required.');
+      if (digits.length < 6) errs.push('A valid phone number is required.');
+      if (!sv)               errs.push('Please select a service of interest.');
+      if (errs.length > 0) { showFormMsg(errs.join('<br>'), 'error'); return; }
 
-      if (errors.length > 0) {
-        showFormMsg(errors.join('<br>'), 'error');
-        return;
-      }
       /* ── Loading state ── */
       var btn = document.getElementById('leadSubmitBtn');
-      var origTxt = btn ? btn.textContent : '';
-      var origBg  = btn ? btn.style.background : '';
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Submitting…';
-        btn.style.background = 'rgba(0,212,212,0.3)';
-      }
+      if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; btn.style.background = 'rgba(0,212,212,0.3)'; }
 
-      /* ── POST to Edge Function via XMLHttpRequest (no CORS preflight) ── */
+      /* ── Build payload ── */
       var payload = JSON.stringify({
         first_name:          fn,
         last_name:           ln,
@@ -4606,27 +4580,23 @@ nav { position: relative; z-index: 9999; }
         status:              'new'
       });
 
+      /* ── POST to Supabase REST API ── */
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', EDGE_URL, true);
-      /* text/plain = "simple request" — browser sends NO preflight OPTIONS.
-         The Edge Function reads the body as text then JSON.parse()s it. */
-      xhr.setRequestHeader('Content-Type', 'text/plain');
+      xhr.open('POST', 'https://pduemybwotfrtznpvyii.supabase.co/rest/v1/leads', true);
+      xhr.setRequestHeader('apikey',        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg');
+      xhr.setRequestHeader('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg');
+      xhr.setRequestHeader('Content-Type',  'application/json');
+      xhr.setRequestHeader('Prefer',        'return=minimal');
 
       xhr.onreadystatechange = function() {
         if (xhr.readyState !== 4) return;
-        // Fire analytics on success
         if (xhr.status === 200 || xhr.status === 201) {
           if (typeof window.lintrk === 'function') { window.lintrk('track', { conversion_id: 25674076 }); }
           if (typeof fbq === 'function') { fbq('track', 'Lead'); }
         }
-        // Always redirect to thank-you regardless of status
         window.location.href = '/thank-you';
       };
-
-      xhr.onerror = function() {
-        window.location.href = '/thank-you';
-      };
-
+      xhr.onerror = function() { window.location.href = '/thank-you'; };
       xhr.send(payload);
     }
 
@@ -5202,8 +5172,11 @@ function submitCBForm(e) {
   });
 
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://pduemybwotfrtznpvyii.supabase.co/functions/v1/submit-lead', true);
-  xhr.setRequestHeader('Content-Type', 'text/plain');
+  xhr.open('POST', 'https://pduemybwotfrtznpvyii.supabase.co/rest/v1/leads', true);
+  xhr.setRequestHeader('apikey',        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg');
+  xhr.setRequestHeader('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg');
+  xhr.setRequestHeader('Content-Type',  'application/json');
+  xhr.setRequestHeader('Prefer',        'return=minimal');
   xhr.onreadystatechange = function() {
     if (xhr.readyState !== 4) return;
     window.location.href = '/thank-you';
