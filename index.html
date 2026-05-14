@@ -4530,6 +4530,10 @@ nav { position: relative; z-index: 9999; }
       }
     }
 
+    /* ── Supabase config (anon key — safe to be public; RLS enforces access control) ── */
+    var _SURL = 'https://pduemybwotfrtznpvyii.supabase.co/rest/v1/leads';
+    var _SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg';
+
     /* ── LEAD FORM — Supabase REST API direct insert ── */
     function submitLeadForm() {
       if (window.location.protocol === 'file:') {
@@ -4582,9 +4586,9 @@ nav { position: relative; z-index: 9999; }
 
       /* ── POST to Supabase REST API ── */
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'https://pduemybwotfrtznpvyii.supabase.co/rest/v1/leads', true);
-      xhr.setRequestHeader('apikey',        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg');
-      xhr.setRequestHeader('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg');
+      xhr.open('POST', _SURL, true);
+      xhr.setRequestHeader('apikey',        _SKEY);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + _SKEY);
       xhr.setRequestHeader('Content-Type',  'application/json');
       xhr.setRequestHeader('Prefer',        'return=minimal');
 
@@ -5173,9 +5177,9 @@ function submitCBForm(e) {
   });
 
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://pduemybwotfrtznpvyii.supabase.co/rest/v1/leads', true);
-  xhr.setRequestHeader('apikey',        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg');
-  xhr.setRequestHeader('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg');
+  xhr.open('POST', _SURL, true);
+  xhr.setRequestHeader('apikey',        _SKEY);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + _SKEY);
   xhr.setRequestHeader('Content-Type',  'application/json');
   xhr.setRequestHeader('Prefer',        'return=minimal');
   xhr.onreadystatechange = function() {
@@ -5189,4 +5193,7 @@ function submitCBForm(e) {
   <noscript>
   <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=9270068&fmt=gif" />
   </noscript>
-  <!-- End 
+  <!-- End LinkedIn Insight Tag -->
+
+</body>
+</html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
