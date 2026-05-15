@@ -3667,15 +3667,22 @@ nav { position: relative; z-index: 9999; }
             </select>
           </div>
           <div class="crm-field">
-            <label for="crm-turnover">Company Turnover (₹)</label>
+            <label for="crm-currency">Preferred Currency</label>
+            <select id="crm-currency" name="currency" onchange="updateCurrencyFields(this.value)">
+              <option value="USD" selected>🇺🇸 USD — US Dollar</option>
+              <option value="INR">🇮🇳 INR — Indian Rupee</option>
+            </select>
+          </div>
+          <div class="crm-field">
+            <label for="crm-turnover" id="crm-turnover-label">Company Turnover (USD)</label>
             <select id="crm-turnover" name="companyTurnover">
               <option value="">please select</option>
-              <option>Below ₹10 Lakhs</option>
-              <option>₹10L – ₹50L</option>
-              <option>₹50L – ₹1 Cr</option>
-              <option>₹1 Cr – ₹5 Cr</option>
-              <option>₹5 Cr – ₹20 Cr</option>
-              <option>Above ₹20 Cr</option>
+              <option>Below $100K</option>
+              <option>$100K – $500K</option>
+              <option>$500K – $1M</option>
+              <option>$1M – $5M</option>
+              <option>$5M – $20M</option>
+              <option>Above $20M</option>
             </select>
           </div>
         </div>
@@ -3714,14 +3721,14 @@ nav { position: relative; z-index: 9999; }
         <!-- Row 4: Monthly Budget · How Soon -->
         <div class="crm-row crm-row-2">
           <div class="crm-field">
-            <label for="crm-budget">Monthly Budget (₹)</label>
+            <label for="crm-budget" id="crm-budget-label">Monthly Budget (USD)</label>
             <select id="crm-budget" name="monthlyBudget">
               <option value="">please select</option>
-              <option>Below ₹10,000</option>
-              <option>₹10,000 – ₹25,000</option>
-              <option>₹25,000 – ₹50,000</option>
-              <option>₹50,000 – ₹1,00,000</option>
-              <option>Above ₹1,00,000</option>
+              <option>Below $500/mo</option>
+              <option>$500 – $1,500/mo</option>
+              <option>$1,500 – $3,000/mo</option>
+              <option>$3,000 – $5,000/mo</option>
+              <option>Above $5,000/mo</option>
             </select>
           </div>
           <div class="crm-field">
@@ -3746,8 +3753,8 @@ nav { position: relative; z-index: 9999; }
           <div class="crm-field">
             <label for="crm-timezone">Preferred Timezone</label>
             <select id="crm-timezone" name="timezone">
-              <option value="Asia/Kolkata" selected>Asia/Kolkata (IST)</option>
-              <option value="America/Chicago">America/Chicago (CST)</option>
+              <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+              <option value="America/Chicago" selected>America/Chicago (CST)</option>
               <option value="America/New_York">America/New_York (EST)</option>
               <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
               <option value="Europe/London">Europe/London (GMT)</option>
@@ -4581,6 +4588,63 @@ nav { position: relative; z-index: 9999; }
     var _SURL = 'https://pduemybwotfrtznpvyii.supabase.co/rest/v1/leads';
     var _SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg';
 
+
+    /* ── Currency ↔ Timezone auto-switch ── */
+    function updateCurrencyFields(currency) {
+      var tzSel       = document.getElementById('crm-timezone');
+      var turnoverSel = document.getElementById('crm-turnover');
+      var budgetSel   = document.getElementById('crm-budget');
+      var turnoverLbl = document.getElementById('crm-turnover-label');
+      var budgetLbl   = document.getElementById('crm-budget-label');
+      if (!tzSel || !turnoverSel || !budgetSel) return;
+
+      if (currency === 'USD') {
+        /* Timezone → CST */
+        tzSel.value = 'America/Chicago';
+        /* Turnover options — USD */
+        turnoverLbl.textContent = 'Company Turnover (USD)';
+        turnoverSel.innerHTML =
+          '<option value="">please select</option>' +
+          '<option>Below $100K</option>' +
+          '<option>$100K – $500K</option>' +
+          '<option>$500K – $1M</option>' +
+          '<option>$1M – $5M</option>' +
+          '<option>$5M – $20M</option>' +
+          '<option>Above $20M</option>';
+        /* Budget options — USD */
+        budgetLbl.textContent = 'Monthly Budget (USD)';
+        budgetSel.innerHTML =
+          '<option value="">please select</option>' +
+          '<option>Below $500/mo</option>' +
+          '<option>$500 – $1,500/mo</option>' +
+          '<option>$1,500 – $3,000/mo</option>' +
+          '<option>$3,000 – $5,000/mo</option>' +
+          '<option>Above $5,000/mo</option>';
+      } else {
+        /* Timezone → IST */
+        tzSel.value = 'Asia/Kolkata';
+        /* Turnover options — INR */
+        turnoverLbl.textContent = 'Company Turnover (INR)';
+        turnoverSel.innerHTML =
+          '<option value="">please select</option>' +
+          '<option>Below ₹10 Lakhs</option>' +
+          '<option>₹10L – ₹50L</option>' +
+          '<option>₹50L – ₹1 Cr</option>' +
+          '<option>₹1 Cr – ₹5 Cr</option>' +
+          '<option>₹5 Cr – ₹20 Cr</option>' +
+          '<option>Above ₹20 Cr</option>';
+        /* Budget options — INR */
+        budgetLbl.textContent = 'Monthly Budget (INR)';
+        budgetSel.innerHTML =
+          '<option value="">please select</option>' +
+          '<option>Below ₹10,000</option>' +
+          '<option>₹10,000 – ₹25,000</option>' +
+          '<option>₹25,000 – ₹50,000</option>' +
+          '<option>₹50,000 – ₹1,00,000</option>' +
+          '<option>Above ₹1,00,000</option>';
+      }
+    }
+
     /* ── LEAD FORM — Supabase REST API direct insert ── */
     function submitLeadForm() {
       if (window.location.protocol === 'file:') {
@@ -5261,3 +5325,7 @@ function submitCBForm(e) {
   <noscript>
   <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=9270068&fmt=gif" />
   </noscript
+  <!-- End LinkedIn Insight Tag -->
+
+</body>
+</html>
