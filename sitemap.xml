@@ -4,15 +4,15 @@
   <!-- Home -->
   <url>
     <loc>https://synergisticaisolns.com/</loc>
-    <lastmod>2026-04-30</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- Services (main) -->
   <url>
     <loc>https://synergisticaisolns.com/services</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -20,7 +20,7 @@
   <!-- AI Automations -->
   <url>
     <loc>https://synergisticaisolns.com/services/ai-automations</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -28,7 +28,7 @@
   <!-- Digital Marketing -->
   <url>
     <loc>https://synergisticaisolns.com/services/digital-marketing</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -36,7 +36,7 @@
   <!-- Industries -->
   <url>
     <loc>https://synergisticaisolns.com/industries</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -44,7 +44,7 @@
   <!-- Process -->
   <url>
     <loc>https://synergisticaisolns.com/process</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -52,7 +52,7 @@
   <!-- About Us -->
   <url>
     <loc>https://synergisticaisolns.com/about</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -60,7 +60,7 @@
   <!-- Careers -->
   <url>
     <loc>https://synergisticaisolns.com/careers</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -68,7 +68,7 @@
   <!-- Contact -->
   <url>
     <loc>https://synergisticaisolns.com/contact</loc>
-    <lastmod>2026-04-30</lastmod>
+    <lastmod>2026-05-17</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
