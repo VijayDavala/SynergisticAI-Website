@@ -5258,7 +5258,7 @@ function closeCBPopup() {
     ov.classList.remove('visible');
     ov.classList.add('cb-hidden');
   }
-  // Re-appear after 30 seconds if user hasn't submitted the form yet
+  // Re-appear after 1.5 minutes if user hasn't submitted the form yet
   setTimeout(function() {
     if (!sessionStorage.getItem('cbSubmitted')) {
       var ov2 = document.getElementById('cb-overlay');
@@ -5271,7 +5271,7 @@ function closeCBPopup() {
         ov2.classList.add('visible');
       }
     }
-  }, 30000);
+  }, 90000);
 }
 
 function submitCBForm(e) {
