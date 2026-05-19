@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.synergisticaisolns.com" }],
+      "destination": "https://synergisticaisolns.com/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/thank-you", "destination": "/thank-you.html" },
     { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
