@@ -1,0 +1,37 @@
+# Synergistic AI Solutions — robots.txt
+# https://synergisticaisolns.com
+# Updated: May 2026
+
+# ── Allow all legitimate search engine bots ──
+User-agent: *
+Allow: /
+
+# ── Block private / utility pages ──
+Disallow: /thank-you
+Disallow: /api/
+
+# ── Block common vulnerability scan paths (site is not WordPress,
+#    but bots probe these regardless and waste your crawl budget) ──
+Disallow: /wp-admin/
+Disallow: /wp-login.php
+Disallow: /wp-includes/
+Disallow: /wp-content/
+Disallow: /xmlrpc.php
+Disallow: /.env
+Disallow: /.git/
+
+# ── AI training crawlers — opt out (protects brand content) ──
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+# ── Sitemap ──
+Sitemap: https://synergisticaisolns.com/sitemap.xml
