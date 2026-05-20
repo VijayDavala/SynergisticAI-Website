@@ -2370,12 +2370,15 @@ nav { position: relative; z-index: 9999; }
     @keyframes cbSlideIn { from{opacity:0;transform:scale(0.88) translateY(24px)} to{opacity:1;transform:scale(1) translateY(0)} }
     @media(max-width:580px){#cb-modal{grid-template-columns:1fr}#cb-left{display:none}}
     #cb-left {
-      background: linear-gradient(155deg,#00d4d4 0%,#0a1830 55%,#39ff14 130%);
+      background:
+        linear-gradient(160deg, rgba(0,0,0,0.55) 0%, rgba(0,20,40,0.72) 100%),
+        url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=700&q=85&fit=crop') center/cover no-repeat;
       padding: 48px 28px; display: flex; flex-direction: column;
-      justify-content: center; align-items: center; text-align: center; gap: 18px;
+      justify-content: flex-end; align-items: flex-start; text-align: left; gap: 18px;
+      border-radius: 12px 0 0 12px;
     }
-    #cb-left img { width:90px;height:90px;object-fit:contain;border-radius:50%;border:3px solid rgba(10,10,26,0.4);box-shadow:0 0 24px rgba(10,10,26,0.3); }
-    #cb-left-title { font-family:'Orbitron',sans-serif;font-size:1.55rem;font-weight:900;color:#fff;line-height:1.2;text-shadow:0 2px 12px rgba(0,0,0,0.4); }
+    #cb-left img { display: none; }
+    #cb-left-title { font-family:'Orbitron',sans-serif;font-size:1.55rem;font-weight:900;color:#fff;line-height:1.2;text-shadow:0 2px 18px rgba(0,0,0,0.7); }
     #cb-left p { font-size:0.88rem;color:rgba(255,255,255,0.85);line-height:1.6; }
     #cb-left .cb-badge { background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:6px 14px;font-size:0.75rem;font-weight:700;color:#fff;letter-spacing:0.08em; }
     #cb-right { padding:40px 36px 36px; }
@@ -4691,7 +4694,6 @@ nav { position: relative; z-index: 9999; }
     <div id="cb-modal">
       <button id="cb-close" aria-label="Close popup" onclick="closeCBPopup()">&#215;</button>
       <div id="cb-left">
-        <img src="/favicon-192.png" alt="Synergistic AI Logo" width="52" height="52" loading="lazy" />
         <div id="cb-left-title">Let's Talk<br>Business</div>
         <p>Get a free strategy call with our AI experts — no commitment required.</p>
         <span class="cb-badge">⚡ 30-Min Free Consultation</span>
