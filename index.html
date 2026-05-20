@@ -4900,8 +4900,8 @@ nav { position: relative; z-index: 9999; }
       if (e.key === 'Escape') closeCBPopup();
     });
 
-    // Initial show after 25 seconds
-    setTimeout(showPopup, 25000);
+    // Initial show after 30 seconds
+    setTimeout(showPopup, 30000);
   }
 
   if (document.readyState === 'loading') {
@@ -4934,7 +4934,7 @@ function closeCBPopup() {
         ov2.classList.add('visible');
       }
     }
-  }, 90000);
+  }, 120000); // 2 minutes
 }
 
 function submitCBForm(e) {
