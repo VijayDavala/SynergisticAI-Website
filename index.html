@@ -2023,6 +2023,9 @@
     .footer-contact-item .fc-icon { color: var(--teal-bright); font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
     .footer-contact-item a { color: rgba(255,255,255,0.6); transition: color 0.2s; }
     .footer-contact-item a:hover { color: var(--teal-bright); }
+    .footer-contact-block { grid-column: 2 / 4; display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; border-top: 0.5px solid rgba(0,212,212,0.12); padding-top: 20px; }
+    .fcb-left { display: flex; flex-direction: column; gap: 2px; }
+    .fcb-right { display: flex; flex-direction: column; padding-left: 28px; border-left: 1px solid rgba(0,212,212,0.15); }
     .footer-office-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal-bright); margin: 14px 0 4px; font-family: 'Orbitron', sans-serif; }
     .footer-geo-badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
     .footer-geo-badge {
@@ -4239,20 +4242,6 @@ nav { position: relative; z-index: 9999; }
         </div>
         <p>Empowering B2B businesses with Agentic AI, intelligent automations, and digital marketing to innovate, automate, and dominate.</p>
 
-        <!-- Contact Info -->
-        <div class="footer-contact-item">
-          <span class="fc-icon">&#128222;</span>
-          <a href="tel:+919959992175">+91 9959992175</a>
-        </div>
-        <div class="footer-contact-item">
-          <span class="fc-icon">&#9993;</span>
-          <a href="mailto:digitalsynergistic@gmail.com">digitalsynergistic@gmail.com</a>
-        </div>
-        <p class="footer-office-label">Office Location</p>
-        <div class="footer-contact-item" style="align-items:flex-start;">
-          <span class="fc-icon">&#128205;</span>
-          <span>Plot No. 69, Teachers Colony,<br>Ameenpur, Hyderabad,<br>Telangana, India &mdash; 502032</span>
-        </div>
 
         <!-- Geo badges -->
         <div class="footer-geo-badges">
@@ -4293,6 +4282,28 @@ nav { position: relative; z-index: 9999; }
           <li><a href="javascript:void(0)" onclick="showSection('digital-marketing')">Digital Marketing</a></li>
         </ul>
       </nav>
+
+
+      <!-- Contact Details: spans below Industries & Services columns -->
+      <div class="footer-contact-block">
+        <div class="fcb-left">
+          <div class="footer-contact-item">
+            <span class="fc-icon">&#128222;</span>
+            <a href="tel:+919959992175">+91 9959992175</a>
+          </div>
+          <div class="footer-contact-item">
+            <span class="fc-icon">&#9993;</span>
+            <a href="mailto:digitalsynergistic@gmail.com">digitalsynergistic@gmail.com</a>
+          </div>
+        </div>
+        <div class="fcb-right">
+          <p class="footer-office-label">Office Location</p>
+          <div class="footer-contact-item" style="align-items:flex-start;">
+            <span class="fc-icon">&#128205;</span>
+            <span>Plot No. 69, Teachers Colony,<br>Ameenpur, Hyderabad,<br>Telangana, India &mdash; 502032</span>
+          </div>
+        </div>
+      </div>
 
       <!-- Company -->
       <nav class="footer-col" aria-label="Company footer navigation">
