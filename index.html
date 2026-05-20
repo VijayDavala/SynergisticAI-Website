@@ -1509,179 +1509,6 @@
     }
     .dm-why-card p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
 
-    /* ===================== CRM CONTACT PAGE ===================== */
-    #crm-contact { background: linear-gradient(180deg, var(--teal-deep) 0%, #0b1f35 100%); }
-
-    .crm-breadcrumb {
-      font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase;
-      color: var(--text-muted); margin-bottom: 28px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .crm-breadcrumb a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
-    .crm-breadcrumb a:hover { color: var(--teal-bright); }
-    .crm-breadcrumb span { color: var(--neon-pink); }
-
-    .crm-page-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1.6rem, 3vw, 2.4rem);
-      font-weight: 900; color: var(--white);
-      margin-bottom: 36px;
-    }
-    .crm-page-title span { color: var(--neon-pink); }
-
-    .crm-form-wrap {
-      max-width: 1000px;
-      background: rgba(8,20,38,0.85);
-      border: 1px solid rgba(0,212,212,0.15);
-      padding: 48px 48px 40px;
-    }
-    @media(max-width:768px){ .crm-form-wrap{ padding: 28px 20px; } }
-
-    .crm-row {
-      display: grid; gap: 20px; margin-bottom: 20px;
-    }
-    .crm-row-3 { grid-template-columns: 1fr 1fr 1fr; }
-    .crm-row-2 { grid-template-columns: 1fr 1fr; }
-    .crm-row-1 { grid-template-columns: 1fr; }
-    @media(max-width:768px){
-      .crm-row-3, .crm-row-2 { grid-template-columns: 1fr; }
-    }
-
-    .crm-field { display: flex; flex-direction: column; gap: 6px; position: relative; }
-    .crm-field label {
-      font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
-      color: rgba(0,212,212,0.6); font-weight: 600;
-    }
-    .crm-field input,
-    .crm-field select,
-    .crm-field textarea {
-      padding: 13px 16px;
-      background: rgba(0,212,212,0.04);
-      border: 1px solid rgba(0,212,212,0.18);
-      border-bottom: 2px solid rgba(0,212,212,0.25);
-      color: var(--white);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.25s;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .crm-field input::placeholder { color: rgba(255,255,255,0.25); }
-    .crm-field select option { background: #0a1a2e; color: #fff; }
-    .crm-field input:focus,
-    .crm-field select:focus,
-    .crm-field textarea:focus {
-      border-color: rgba(0,212,212,0.5);
-      border-bottom-color: var(--teal-bright);
-      background: rgba(0,212,212,0.07);
-      box-shadow: 0 0 0 2px rgba(0,212,212,0.08);
-    }
-    .crm-field textarea { resize: vertical; min-height: 110px; }
-
-    /* Phone field with flag */
-    .crm-phone-wrap {
-      display: flex; gap: 0;
-    }
-    .crm-phone-flag {
-      display: flex; align-items: center; gap: 6px;
-      padding: 13px 12px;
-      background: rgba(0,212,212,0.06);
-      border: 1px solid rgba(0,212,212,0.18);
-      border-right: none;
-      border-bottom: 2px solid rgba(0,212,212,0.25);
-      font-size: 0.82rem; color: var(--silver); white-space: nowrap;
-      cursor: pointer; flex-shrink: 0;
-    }
-    .crm-phone-flag:hover { background: rgba(0,212,212,0.1); }
-    .crm-phone-input {
-      flex: 1;
-      border-left: none !important;
-      border-bottom-left-radius: 0 !important;
-    }
-
-    /* Services checkboxes */
-    .crm-services-label {
-      font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
-      color: rgba(0,212,212,0.6); font-weight: 600; margin-bottom: 12px;
-    }
-    .crm-checkbox-group {
-      display: flex; flex-wrap: wrap; gap: 16px;
-      margin-bottom: 20px;
-    }
-    .crm-checkbox-item {
-      display: flex; align-items: center; gap: 8px;
-      cursor: pointer; font-size: 0.88rem; color: var(--silver);
-      user-select: none;
-    }
-    .crm-checkbox-item input[type="checkbox"] { display: none; }
-    .crm-checkbox-custom {
-      width: 18px; height: 18px; border-radius: 50%;
-      border: 2px solid rgba(0,212,212,0.35);
-      background: transparent; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
-    .crm-checkbox-item input[type="checkbox"]:checked + .crm-checkbox-custom {
-      border-color: var(--teal-bright);
-      background: var(--teal-bright);
-    }
-    .crm-checkbox-item input[type="checkbox"]:checked + .crm-checkbox-custom::after {
-      content: '✓'; color: var(--teal-deep); font-size: 0.65rem; font-weight: 900;
-    }
-    .crm-checkbox-item:hover .crm-checkbox-custom { border-color: var(--teal-bright); }
-
-    /* Fake captcha */
-    .crm-captcha {
-      display: flex; align-items: center; gap: 14px;
-      padding: 16px 20px;
-      border: 1px solid rgba(0,212,212,0.18);
-      background: rgba(0,212,212,0.03);
-      max-width: 280px; margin: 20px 0;
-    }
-    .crm-captcha-box {
-      width: 22px; height: 22px;
-      border: 2px solid rgba(0,212,212,0.4);
-      background: transparent; flex-shrink: 0; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
-    .crm-captcha-box.checked { background: var(--teal-bright); border-color: var(--teal-bright); }
-    .crm-captcha-box.checked::after { content: '✓'; color: #fff; font-size: 0.7rem; font-weight: 900; }
-    .crm-captcha-text { font-size: 0.88rem; color: var(--silver); }
-    .crm-captcha-logo { margin-left: auto; text-align: right; }
-    .crm-captcha-logo div:first-child { font-size: 1.2rem; }
-    .crm-captcha-logo div:last-child { font-size: 0.55rem; color: var(--text-muted); letter-spacing: 1px; }
-
-    .crm-disclaimer {
-      font-size: 0.78rem; color: var(--text-muted); line-height: 1.7;
-      margin: 16px 0 24px; max-width: 700px;
-    }
-    .crm-disclaimer a { color: var(--teal-bright); text-decoration: underline; }
-
-    .crm-submit-btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 14px 40px;
-      background: var(--neon-pink);
-      color: #fff;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem; font-weight: 700;
-      letter-spacing: 2px; text-transform: uppercase;
-      border: none; cursor: pointer; border-radius: 40px;
-      transition: var(--transition);
-    }
-    .crm-submit-btn:hover { background: #cc00a3; box-shadow: 0 0 24px rgba(255,0,204,0.45); transform: translateY(-2px); }
-    .crm-submit-btn svg { width: 18px; height: 18px; fill: #fff; }
-
-    .crm-success-msg {
-      display: none; text-align: center; padding: 32px;
-    }
-    .crm-success-msg.visible { display: block; }
-    .crm-success-msg h3 {
-      font-family: 'Orbitron', sans-serif;
-      color: var(--teal-bright); font-size: 1.2rem; margin-bottom: 12px;
-    }
-    /* ===================== END CRM CONTACT ===================== */
 
 
 
@@ -2982,7 +2809,7 @@ nav { position: relative; z-index: 9999; }
             <div class="aia-stat-label">Always Running</div>
           </div>
         </div>
-        <button class="aia-hero-btn" onclick="showSection('crm-contact')">
+        <button class="aia-hero-btn" onclick="scrollToContact()">
           <span>Get a Free Automation Audit</span>
         </button>
       </div>
@@ -3464,7 +3291,7 @@ nav { position: relative; z-index: 9999; }
       <div class="aia-cta-label">Ready to Automate?</div>
       <h3>Stop Doing Work <span>AI Can Do For You</span></h3>
       <p>Book a free automation audit and discover how many hours per week your team can reclaim starting this month.</p>
-      <button class="btn-primary" onclick="showSection('crm-contact')"><span>Book Free Automation Audit</span></button>
+      <button class="btn-primary" onclick="scrollToContact()"><span>Book Free Automation Audit</span></button>
     </div>
 
   </section>
@@ -3665,218 +3492,6 @@ nav { position: relative; z-index: 9999; }
   </section>
 
   <!-- ==================== CRM CONTACT PAGE ==================== -->
-  <section id="crm-contact" class="page-section" aria-label="Contact Us - CRM">
-
-    <!-- Breadcrumb -->
-    <div class="crm-breadcrumb">
-      <a onclick="showSection('home')">HOME</a>
-      <span>•</span>
-      <span style="color:var(--silver);">CONTACT US</span>
-    </div>
-
-    <!-- Page Title -->
-    <h2 class="crm-page-title">Contact Us – <span>CRM</span></h2>
-
-    <div class="crm-form-wrap">
-      <form id="crm-form" onsubmit="handleCrmSubmit(event)" novalidate>
-
-        <!-- Row 1: Name · Phone · Email -->
-        <div class="crm-row crm-row-3">
-          <div class="crm-field">
-            <label for="crm-name">Your Name</label>
-            <input type="text" id="crm-name" name="fullName" placeholder="Your full name" required autocomplete="name"/>
-          </div>
-          <div class="crm-field">
-            <label for="crm-phone">Phone Number</label>
-            <div class="crm-phone-wrap">
-              <div class="crm-phone-flag">🇮🇳 +91</div>
-              <input type="tel" id="crm-phone" name="phone" placeholder="98765 43210" class="crm-phone-input" autocomplete="tel"/>
-            </div>
-          </div>
-          <div class="crm-field">
-            <label for="crm-email">Email</label>
-            <input type="email" id="crm-email" name="email" placeholder="you@company.com" required autocomplete="email"/>
-          </div>
-        </div>
-
-        <!-- Row 2: Company · Website -->
-        <div class="crm-row crm-row-2">
-          <div class="crm-field">
-            <label for="crm-company">Company Name</label>
-            <input type="text" id="crm-company" name="companyName" placeholder="Your company" autocomplete="organization"/>
-          </div>
-          <div class="crm-field">
-            <label for="crm-website">Website Link (Optional)</label>
-            <input type="url" id="crm-website" name="website" placeholder="https://yourwebsite.com"/>
-          </div>
-        </div>
-
-        <!-- Row 3: Business Type · Company Turnover -->
-        <div class="crm-row crm-row-2">
-          <div class="crm-field">
-            <label for="crm-btype">Business Type</label>
-            <select id="crm-btype" name="businessType">
-              <option value="">please select</option>
-              <option>Startup</option>
-              <option>SME</option>
-              <option>Enterprise</option>
-              <option>E-Commerce</option>
-              <option>Agency</option>
-              <option>Healthcare</option>
-              <option>Real Estate</option>
-              <option>Insurance</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="crm-field">
-            <label for="crm-currency">Preferred Currency</label>
-            <select id="crm-currency" name="currency" onchange="updateCurrencyFields(this.value)">
-              <option value="USD" selected>🇺🇸 USD — US Dollar</option>
-              <option value="INR">🇮🇳 INR — Indian Rupee</option>
-            </select>
-          </div>
-          <div class="crm-field">
-            <label for="crm-turnover" id="crm-turnover-label">Company Turnover (USD)</label>
-            <select id="crm-turnover" name="companyTurnover">
-              <option value="">please select</option>
-              <option>Below $100K</option>
-              <option>$100K – $500K</option>
-              <option>$500K – $1M</option>
-              <option>$1M – $5M</option>
-              <option>$5M – $20M</option>
-              <option>Above $20M</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Services checkboxes -->
-        <div>
-          <div class="crm-services-label">What Services Are You Looking For?</div>
-          <div class="crm-checkbox-group">
-            <label class="crm-checkbox-item">
-              <input type="checkbox" name="services" value="SEO"/>
-              <span class="crm-checkbox-custom"></span>SEO
-            </label>
-            <label class="crm-checkbox-item">
-              <input type="checkbox" name="services" value="Lead Generation/PPC"/>
-              <span class="crm-checkbox-custom"></span>Lead Generation / PPC
-            </label>
-            <label class="crm-checkbox-item">
-              <input type="checkbox" name="services" value="Social Media Management"/>
-              <span class="crm-checkbox-custom"></span>Social Media Management
-            </label>
-            <label class="crm-checkbox-item">
-              <input type="checkbox" name="services" value="Website Design"/>
-              <span class="crm-checkbox-custom"></span>Website Design
-            </label>
-            <label class="crm-checkbox-item">
-              <input type="checkbox" name="services" value="E-Commerce"/>
-              <span class="crm-checkbox-custom"></span>E-Commerce
-            </label>
-            <label class="crm-checkbox-item">
-              <input type="checkbox" name="services" value="Other"/>
-              <span class="crm-checkbox-custom"></span>Other
-            </label>
-          </div>
-        </div>
-
-        <!-- Row 4: Monthly Budget · How Soon -->
-        <div class="crm-row crm-row-2">
-          <div class="crm-field">
-            <label for="crm-budget" id="crm-budget-label">Monthly Budget (USD)</label>
-            <select id="crm-budget" name="monthlyBudget">
-              <option value="">please select</option>
-              <option>Below $500/mo</option>
-              <option>$500 – $1,500/mo</option>
-              <option>$1,500 – $3,000/mo</option>
-              <option>$3,000 – $5,000/mo</option>
-              <option>Above $5,000/mo</option>
-            </select>
-          </div>
-          <div class="crm-field">
-            <label for="crm-start">How Soon Would You Like to Get Started?</label>
-            <select id="crm-start" name="startTimeline">
-              <option value="">please select</option>
-              <option>Immediately</option>
-              <option>Within 1 Month</option>
-              <option>1–3 Months</option>
-              <option>3–6 Months</option>
-              <option>Just Exploring</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Row 5: Date & Time · Timezone · Mode -->
-        <div class="crm-row crm-row-3">
-          <div class="crm-field">
-            <label for="crm-datetime">Preferred Date &amp; Time for a Meeting / Call</label>
-            <input type="datetime-local" id="crm-datetime" name="preferredDateTime"/>
-          </div>
-          <div class="crm-field">
-            <label for="crm-timezone">Preferred Timezone</label>
-            <select id="crm-timezone" name="timezone">
-              <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
-              <option value="America/Chicago" selected>America/Chicago (CST)</option>
-              <option value="America/New_York">America/New_York (EST)</option>
-              <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
-              <option value="Europe/London">Europe/London (GMT)</option>
-              <option value="Asia/Dubai">Asia/Dubai (GST)</option>
-              <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
-            </select>
-          </div>
-          <div class="crm-field">
-            <label for="crm-mode">Preferred Mode</label>
-            <select id="crm-mode" name="preferredMode">
-              <option value="">please select</option>
-              <option>Google Meet</option>
-              <option>Zoom</option>
-              <option>Phone Call</option>
-              <option>WhatsApp</option>
-              <option>In-Person (Hyderabad)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Message -->
-        <div class="crm-row crm-row-1">
-          <div class="crm-field">
-            <label for="crm-message">Message</label>
-            <textarea id="crm-message" name="message" placeholder="Tell us about your goals, challenges, or any specific requirements…"></textarea>
-          </div>
-        </div>
-
-        <!-- Captcha simulation -->
-        <div class="crm-captcha" id="crm-captcha-wrap">
-          <div class="crm-captcha-box" id="crm-captcha-box" onclick="toggleCaptcha()"></div>
-          <div class="crm-captcha-text">I'm not a robot</div>
-          <div class="crm-captcha-logo">
-            <div>🔒</div>
-            <div>reCAPTCHA<br>Privacy · Terms</div>
-          </div>
-        </div>
-
-        <!-- Disclaimer -->
-        <p class="crm-disclaimer">
-          By submitting this form, you acknowledge our use of your information in accordance with our <a href="#">Privacy Policy</a>. We use the data provided to respond to your inquiry and related services. This communication does not constitute professional advice or establish a formal relationship.
-        </p>
-
-        <!-- Submit -->
-        <button type="submit" class="crm-submit-btn">
-          Submit
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
-        </button>
-
-        <!-- Success message -->
-        <div class="crm-success-msg" id="crm-success">
-          <div style="font-size:2.5rem;margin-bottom:12px;">✅</div>
-          <h3>Message Received!</h3>
-          <p style="color:var(--text-muted);">Our team will get back to you within 24 hours. We look forward to growing your brand together.</p>
-        </div>
-
-      </form>
-    </div>
-
-  </section>
 
   <!-- ==================== PROCESS ==================== -->
   <section id="process" class="page-section" aria-label="Our process">
@@ -4306,7 +3921,7 @@ nav { position: relative; z-index: 9999; }
     });
 
     /* ============ SECTION NAVIGATION ============ */
-    const sections = ['home', 'industries', 'services', 'ai-automations', 'digital-marketing', 'crm-contact', 'process', 'careers', 'about'];
+    const sections = ['home', 'industries', 'services', 'ai-automations', 'digital-marketing', 'process', 'careers', 'about'];
 
     function showSection(id) {
       // Close mobile menu
@@ -4364,8 +3979,7 @@ nav { position: relative; z-index: 9999; }
         'services'          : 'Services',
         'ai-automations'    : 'Services',
         'digital-marketing' : 'Services',
-        'crm-contact'       : 'Services',
-        'process'           : 'Process',
+                'process'           : 'Process',
         'careers'           : 'Careers',
         'about'             : 'About Us'
       };
@@ -5117,7 +4731,7 @@ nav { position: relative; z-index: 9999; }
       'home':'/', 'industries':'/industries', 'services':'/services',
       'ai-automations':'/services/ai-automations',
       'digital-marketing':'/services/digital-marketing',
-      'crm-contact':'/contact', 'process':'/process',
+      'process':'/process',
       'careers':'/careers', 'about':'/about'
     };
     var reverseMap = {};
@@ -5192,7 +4806,7 @@ nav { position: relative; z-index: 9999; }
         </div>
       </div>
       <div style="text-align:center;margin-top:20px">
-        <button class="uni-cta" onclick="showSection('crm-contact');_closeModal()" type="button">Get a Free Consultation &#8594;</button>
+        <button class="uni-cta" onclick="scrollToContact();_closeModal()" type="button">Get a Free Consultation &#8594;</button>
       </div>
     </div>
   </div>
