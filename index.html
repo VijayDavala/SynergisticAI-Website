@@ -1987,7 +1987,7 @@
     /* ===================== FOOTER ===================== */
     footer {
       background: #080d1a;
-      border-top: 2px solid #ff6b00;
+      border-top: 2px solid var(--teal-bright);
       padding: 0;
     }
     .ft-simple-top {
@@ -2039,7 +2039,8 @@
       border-right: 1px solid rgba(255,255,255,0.1);
       margin: 0 8px;
     }
-    .ft-office-loc-icon { color: var(--teal-bright); font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+    .ft-office-loc-icon { color: var(--teal-bright); font-size: 0.85rem; flex-shrink: 0; margin-top: 4px; }
+    .ft-office-heading { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal-bright); margin: 0 0 3px; font-family: 'Orbitron', sans-serif; }
     .ft-simple-social {
       display: flex;
       align-items: center;
@@ -2139,17 +2140,13 @@
       .stat-item:last-child { border-bottom: none; }
       .careers-intro { grid-template-columns: 1fr; }
       .about-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
-      .footer-cta-strip { flex-direction: column; align-items: flex-start; }
-      .footer-brand p { max-width: 100%; }
+
       .process-steps::before { display: none; }
       .form-row { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 480px) {
-      .footer-grid { grid-template-columns: 1fr; }
-      .footer-bottom { flex-direction: column; align-items: flex-start; }
-      .footer-bottom-links { flex-wrap: wrap; gap: 12px; }
+
       .hero-actions { flex-direction: column; align-items: center; }
       .careers-perks { grid-template-columns: 1fr; }
       .about-values { grid-template-columns: 1fr; }
@@ -2303,58 +2300,6 @@
     /* Magnetic buttons */
     .btn-primary, .btn-secondary, .nav-cta, .job-apply {
       will-change: transform;
-    }
-
-
-    /* ===================== FOOTER LOGO HERO ===================== */
-    .footer-logo-hero {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0;
-      margin-bottom: 20px;
-    }
-    .footer-logo-hero img {
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      border: 3px solid var(--teal-bright);
-      box-shadow:
-        0 0 35px rgba(0,212,212,0.8),
-        0 0 70px rgba(0,212,212,0.4),
-        0 0 110px rgba(0,212,212,0.15),
-        inset 0 0 20px rgba(0,212,212,0.05);
-      object-fit: cover;
-      object-position: center;
-      transition: transform 0.5s ease, box-shadow 0.4s ease;
-      display: block;
-      margin-bottom: 18px;
-    }
-    .footer-logo-hero img:hover {
-      transform: scale(1.07) rotate(3deg);
-      box-shadow:
-        0 0 55px rgba(0,212,212,1),
-        0 0 100px rgba(0,212,212,0.55),
-        0 0 160px rgba(0,212,212,0.22);
-    }
-    .footer-brand-name {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 900;
-      color: #ffffff;
-      letter-spacing: 2px;
-      text-shadow: 0 0 18px rgba(255,255,255,0.4), 0 2px 6px rgba(0,0,0,0.6);
-      line-height: 1.2;
-      margin-bottom: 4px;
-    }
-    .footer-brand-sub {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--teal-bright);
-      letter-spacing: 5px;
-      text-shadow: 0 0 14px rgba(0,212,212,1), 0 0 28px rgba(0,212,212,0.6);
-      display: block;
-      margin-bottom: 14px;
     }
 
   
@@ -2628,27 +2573,12 @@ nav { position: relative; z-index: 9999; }
   .aia-tile { flex: 0 0 85%; }
   .aia-coverflow-stage { display: none; }
 
-  /* Footer: single column stack on all phones/tablets */
-  .footer-grid {
-    grid-template-columns: 1fr !important;
-    gap: 32px;
-    margin-bottom: 32px;
-  }
-  .footer-brand { grid-column: auto; }
-  .footer-logo-hero img { width: 90px; height: 90px; margin-bottom: 12px; }
-  .footer-brand-name { font-size: 1rem; }
-  .footer-brand-sub { font-size: 0.7rem; letter-spacing: 3px; }
-  .footer-brand p { max-width: 100%; }
-  .footer-col { padding-top: 0; border-top: 1px solid rgba(0,212,212,0.08); padding-top: 20px; }
-  .footer-col:first-of-type { border-top: none; padding-top: 0; }
-  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+
 }
 
 /* ── 480px: Single column ── */
 @media (max-width: 480px) {
-  .footer-grid { grid-template-columns: 1fr !important; }
-  .footer-brand { grid-column: auto; }
-  .footer-logo-hero img { width: 80px; height: 80px; }
+
   .careers-perks { grid-template-columns: 1fr; }
   .about-values { grid-template-columns: 1fr; }
 }
@@ -4258,7 +4188,10 @@ nav { position: relative; z-index: 9999; }
       <!-- Office Location -->
       <div class="ft-office-loc">
         <span class="ft-office-loc-icon">&#128205;</span>
-        <span>Plot No. 69, Teachers Colony, Ameenpur,<br>Hyderabad, Telangana &mdash; 502032</span>
+        <div>
+          <p class="ft-office-heading">Office Location</p>
+          <span>Plot No. 69, Teachers Colony, Ameenpur,<br>Hyderabad, Telangana &mdash; 502032</span>
+        </div>
       </div>
 
       <!-- Social icons -->
