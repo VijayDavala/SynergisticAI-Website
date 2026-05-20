@@ -1994,7 +1994,7 @@
       display: flex;
       align-items: center;
       gap: 0;
-      padding: 22px 48px;
+      padding: 12px 48px;
       justify-content: space-between;
     }
     .ft-simple-logo {
@@ -2027,6 +2027,19 @@
       transition: color 0.2s;
     }
     .ft-simple-nav a:hover { color: var(--teal-bright); }
+    .ft-office-loc {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+      padding: 0 24px;
+      border-left: 1px solid rgba(255,255,255,0.1);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      margin: 0 8px;
+    }
+    .ft-office-loc-icon { color: var(--teal-bright); font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
     .ft-simple-social {
       display: flex;
       align-items: center;
@@ -2055,7 +2068,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 48px;
+      padding: 10px 48px;
       flex-wrap: wrap;
       gap: 8px;
     }
@@ -4241,6 +4254,12 @@ nav { position: relative; z-index: 9999; }
         <a href="javascript:void(0)" onclick="showSection('industries')">Industries</a>
         <a href="javascript:void(0)" onclick="showSection('careers')">Careers</a>
       </nav>
+
+      <!-- Office Location -->
+      <div class="ft-office-loc">
+        <span class="ft-office-loc-icon">&#128205;</span>
+        <span>Plot No. 69, Teachers Colony, Ameenpur,<br>Hyderabad, Telangana &mdash; 502032</span>
+      </div>
 
       <!-- Social icons -->
       <div class="ft-simple-social" aria-label="Social media links">
