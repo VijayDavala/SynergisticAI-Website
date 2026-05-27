@@ -5,7 +5,15 @@
       "has": [{ "type": "host", "value": "www.synergisticaisolns.com" }],
       "destination": "https://synergisticaisolns.com/:path*",
       "permanent": true
-    }
+    },
+    { "source": "/about",                      "destination": "https://synergisticaisolns.com/", "permanent": true },
+    { "source": "/contact",                    "destination": "https://synergisticaisolns.com/", "permanent": true },
+    { "source": "/careers",                    "destination": "https://synergisticaisolns.com/", "permanent": true },
+    { "source": "/services",                   "destination": "https://synergisticaisolns.com/", "permanent": true },
+    { "source": "/services/ai-automations",    "destination": "https://synergisticaisolns.com/", "permanent": true },
+    { "source": "/services/digital-marketing", "destination": "https://synergisticaisolns.com/", "permanent": true },
+    { "source": "/industries",                 "destination": "https://synergisticaisolns.com/", "permanent": true },
+    { "source": "/process",                    "destination": "https://synergisticaisolns.com/", "permanent": true }
   ],
   "rewrites": [
     { "source": "/thank-you", "destination": "/thank-you.html" },
