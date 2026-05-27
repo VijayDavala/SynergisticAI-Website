@@ -4853,6 +4853,9 @@ function submitCBForm(e) {
   xhr.setRequestHeader('Prefer',        'return=minimal');
   xhr.onreadystatechange = function() {
     if (xhr.readyState !== 4) return;
+    if (xhr.status === 200 || xhr.status === 201) {
+      if (typeof fbq === 'function') { fbq('track', 'Contact'); }
+    }
     sessionStorage.setItem('cbSubmitted', '1');
     window.location.href = '/thank-you';
   };
