@@ -2820,11 +2820,11 @@ nav { position: relative; z-index: 9999; }
     </p>
 
     <div class="hero-actions">
-      <button class="btn-primary" onclick="showSection('services')" aria-label="Explore our services">
-        <span>Explore Services</span>
+      <button class="btn-primary" onclick="scrollToContact()" aria-label="Get Free Automation Audit">
+        <span>Get Free Automation Audit →</span>
       </button>
-      <button class="btn-secondary" onclick="scrollToContact()" aria-label="Book a free consultation">
-        Book a Consultation
+      <button class="btn-secondary" onclick="showSection('services')" aria-label="See our services">
+        See Our Services
       </button>
     </div>
 
@@ -5243,5 +5243,11 @@ function submitCBForm(e) {
     }
   </script>
 
+
+  <!-- ==================== TIDIO LIVE CHAT ==================== -->
+  <!-- To activate: replace YOUR_TIDIO_PUBLIC_KEY with the key from
+       https://www.tidio.com/panel/settings/general
+       (Settings → General → Your Unique Public Key)            -->
+  <script src="//code.tidio.co/YOUR_TIDIO_PUBLIC_KEY.js" async></script>
 </body>
 </html>
