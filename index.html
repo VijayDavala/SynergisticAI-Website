@@ -344,6 +344,7 @@
       font-family: 'Rajdhani', sans-serif;
       background: var(--teal-deep);
       color: var(--white);
+      overflow-x: hidden;
       line-height: 1.6;
     }
     img { max-width: 100%; display: block; }
@@ -402,12 +403,12 @@
 
     /* ===================== NAVBAR ===================== */
     nav {
-      position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
-      z-index: 99990 !important;
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
       height: var(--nav-height);
-      display: flex !important; align-items: center;
+      display: flex; align-items: center;
       padding: 0 5%;
-      background: rgba(8,20,38,0.98) !important;
+      background: rgba(8,20,38,0.98);
       backdrop-filter: blur(24px);
       border-bottom: 2px solid rgba(0,212,212,0.25);
       transition: var(--transition);
@@ -2511,8 +2512,7 @@
 /* Global iOS tap optimisations */
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 *:not(input):not(textarea):not(select) { touch-action: manipulation; }
-html { overflow-x: clip; width: 100%; }
-body { overflow-x: clip; }
+html, body { overflow-x: hidden; width: 100%; }
 
 /* Hide custom cursor elements on touch devices */
 @media (hover: none), (pointer: coarse) {
@@ -2521,6 +2521,7 @@ body { overflow-x: clip; }
 
 /* Z-index stacking */
 .grid-overlay, .particles { z-index: 0 !important; pointer-events: none !important; }
+nav { position: relative; z-index: 9999; }
 
 /* ── 900px: Mobile nav ── */
 @media (max-width: 900px) {
@@ -5244,4 +5245,4 @@ function submitCBForm(e) {
 
 
 </body>
-</html>                                                                                                                                                                                                                                                                                                                  
+</html>                                                                                                                                                                                                                                                                                                                                              
