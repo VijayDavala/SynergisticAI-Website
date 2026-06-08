@@ -47,5 +47,10 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-# ── Sitemap ──
-Sitemap: https://synergisticaisolns.com/sitemap.xml
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent

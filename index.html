@@ -310,6 +310,90 @@
             "@type": "Answer",
             "text": "We combine deep Agentic AI expertise with hands-on digital marketing — a rare combination most agencies don't offer. We use a 14-tool AI stack, specialise in B2B workflows, and focus on measurable outcomes like reduced cost-per-lead and increased conversion rates. Every engagement is ROI-first, not technology-first."
           }
+        },
+        {
+          "@type": "Question",
+          "name": "Which is the best AI automation company in Hyderabad?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Synergistic AI Solutions, headquartered in Hyderabad, Telangana, is a leading AI automation agency in the city. They specialise in Agentic AI, AI Voice Agents, AI Chatbots, and end-to-end workflow automation for B2B businesses across Insurance, Healthcare, Ecommerce, and Real Estate. They offer a free 30-minute AI Automation Audit to help businesses identify automation opportunities."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who provides the best AI automation services in India?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Synergistic AI Solutions is one of India's top AI automation service providers, based in Hyderabad. They deliver Agentic AI systems, AI workflow automation, AI voice agents, and AI chatbots to B2B companies across India and globally. Their clients achieve up to 60% reduction in operational costs and a 5x ROI within six months."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a digital marketing agency in Hyderabad that also offers AI automation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — Synergistic AI Solutions in Hyderabad uniquely combines AI automation with digital marketing under one roof. They offer SEO, paid ads, social media, and content marketing alongside Agentic AI, AI chatbots, and AI voice agents — making them a full-service growth partner for B2B companies in Hyderabad and across India."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "name": "How Synergistic AI Solutions Implements AI Automation for Your Business",
+      "description": "Our proven 5-step process to deliver AI automation — from discovery to continuous optimisation.",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": "1",
+          "name": "Discovery",
+          "text": "We analyse your business goals, existing workflows, and pain points to identify the highest-impact AI automation opportunities tailored to your industry."
+        },
+        {
+          "@type": "HowToStep",
+          "position": "2",
+          "name": "Strategy",
+          "text": "Our experts design a customised AI roadmap aligned with your industry needs, budget, and revenue growth targets — with clear milestones and ROI projections."
+        },
+        {
+          "@type": "HowToStep",
+          "position": "3",
+          "name": "Build",
+          "text": "We develop, test, and integrate AI agents, automations, and voice/chatbot solutions into your existing tech stack — seamlessly and without disrupting operations."
+        },
+        {
+          "@type": "HowToStep",
+          "position": "4",
+          "name": "Deploy",
+          "text": "Solutions are launched with rigorous QA, security checks, and staff training to ensure smooth adoption and immediate business impact."
+        },
+        {
+          "@type": "HowToStep",
+          "position": "5",
+          "name": "Optimise",
+          "text": "Continuous monitoring, performance analytics, and iterative improvements keep your AI systems ahead of the curve and aligned with evolving business goals."
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://synergisticaisolns.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "AI Automation Services",
+          "item": "https://synergisticaisolns.com/services/ai-automations"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Digital Marketing Services",
+          "item": "https://synergisticaisolns.com/services/digital-marketing"
         }
       ]
     }
@@ -5137,112 +5221,4 @@ nav { position: relative; z-index: 9999; }
     setTimeout(showPopup, 30000);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPopup);
-  } else {
-    initPopup();
-  }
-})();
-
-function closeCBPopup() {
-  var ov = document.getElementById('cb-overlay');
-  if (ov) {
-    ov.style.opacity       = '0';
-    ov.style.pointerEvents = 'none';
-    ov.style.animation     = 'none';
-    ov.style.display       = 'none';
-    ov.classList.remove('visible');
-    ov.classList.add('cb-hidden');
-  }
-  // Re-appear after 1.5 minutes if user hasn't submitted the form yet
-  setTimeout(function() {
-    if (!sessionStorage.getItem('cbSubmitted')) {
-      var ov2 = document.getElementById('cb-overlay');
-      if (ov2) {
-        ov2.style.display       = '';
-        ov2.style.opacity       = '1';
-        ov2.style.pointerEvents = 'auto';
-        ov2.style.animation     = 'none';
-        ov2.classList.remove('cb-hidden');
-        ov2.classList.add('visible');
-      }
-    }
-  }, 120000); // 2 minutes
-}
-
-function submitCBForm(e) {
-  e.preventDefault();
-  var fname   = (document.getElementById('cb-fname')   || {value:''}).value.trim();
-  var lname   = (document.getElementById('cb-lname')   || {value:''}).value.trim();
-  var phone   = (document.getElementById('cb-phone')   || {value:''}).value.trim();
-  var email   = (document.getElementById('cb-email')   || {value:''}).value.trim();
-  var company = (document.getElementById('cb-company') || {value:''}).value.trim();
-  var svc     = (document.getElementById('cb-service') || {value:''}).value.trim();
-  var errEl   = document.getElementById('cb-err');
-  var btn     = document.getElementById('cb-submit');
-
-  if (!fname || !lname || !phone || !email) {
-    if (errEl) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; }
-    return;
-  }
-  if (errEl) errEl.style.display = 'none';
-  if (btn)   { btn.disabled = true; btn.textContent = 'Sending…'; }
-
-  var payload = JSON.stringify({
-    first_name:          fname,
-    last_name:           lname,
-    business_email:      email,
-    company:             company || 'Not provided',
-    phone_number:        phone.replace(/[^0-9]/g, '') || phone,
-    phone_country_code:  '+1',
-    service_of_interest: svc || 'Not specified',
-    source:              'popup_callback_form',
-    status:              'new'
-  });
-
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', _SURL, true);
-  xhr.setRequestHeader('apikey',        _SKEY);
-  xhr.setRequestHeader('Authorization', 'Bearer ' + _SKEY);
-  xhr.setRequestHeader('Content-Type',  'application/json');
-  xhr.setRequestHeader('Prefer',        'return=minimal');
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) return;
-    if (xhr.status === 200 || xhr.status === 201) {
-      if (typeof fbq === 'function') { fbq('track', 'Contact'); }
-    }
-    sessionStorage.setItem('cbSubmitted', '1');
-    window.location.href = '/thank-you';
-  };
-  xhr.onerror = function() {
-    sessionStorage.setItem('cbSubmitted', '1');
-    window.location.href = '/thank-you';
-  };
-  xhr.send(payload);
-}
-</script>
-  <noscript>
-  <img height="1" width="1" style="display:none;" alt="" src="https://px.ads.linkedin.com/collect/?pid=9270068&fmt=gif" />
-  </noscript
-  <!-- End LinkedIn Insight Tag -->
-
-
-  <script>
-    function toggleFAQ(btn) {
-      var expanded = btn.getAttribute('aria-expanded') === 'true';
-      var ans = btn.nextElementSibling;
-      // Close all
-      document.querySelectorAll('.faq-q').forEach(function(b) {
-        b.setAttribute('aria-expanded', 'false');
-        b.nextElementSibling.classList.remove('open');
-      });
-      if (!expanded) {
-        btn.setAttribute('aria-expanded', 'true');
-        ans.classList.add('open');
-      }
-    }
-  </script>
-
-
-</body>
-</html>                                                                                                                                                                                                                                                                                                                                              
+  if (documen
