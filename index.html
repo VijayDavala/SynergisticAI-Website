@@ -2702,18 +2702,14 @@ nav { position: relative; z-index: 9999; }
 
     /* ══ CALL-BACK POPUP ══ */
     #cb-overlay {
-      display: flex;
-      opacity: 0;
-      pointer-events: none;
+      display: none; /* JS controls visibility via .visible class */
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.72);
       backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       z-index: 99999; align-items: center; justify-content: center; padding: 16px;
-      animation: cbFadeIn 0.5s ease forwards 25s;
     }
-    @keyframes cbFadeIn { to { opacity: 1; pointer-events: auto; } }
-    #cb-overlay.visible { opacity: 1; pointer-events: auto; animation: none; }
-    #cb-overlay.cb-hidden { opacity: 0 !important; pointer-events: none !important; animation: none !important; display: none !important; }
+    #cb-overlay.visible { display: flex; pointer-events: auto; }
+    #cb-overlay.cb-hidden { display: none !important; pointer-events: none !important; }
     #cb-modal {
       background: linear-gradient(145deg, #07111f 0%, #0a1a2e 60%, #091420 100%);
       border: 1px solid rgba(0,212,212,0.35); border-radius: 18px;
@@ -5132,7 +5128,7 @@ nav { position: relative; z-index: 9999; }
   <!-- ══ CALL-BACK POPUP ══ -->
   <div id="cb-overlay" role="dialog" aria-modal="true" aria-labelledby="cb-title">
     <div id="cb-modal">
-      <button id="cb-close" aria-label="Close popup" type="button">&#215;</button>
+      <button id="cb-close" aria-label="Close popup" type="button" onclick="closeCBPopup()">&#215;</button>
       <div id="cb-left">
         <div id="cb-left-title">Let's Talk<br>Business</div>
         <p>Get a free strategy call with our AI experts — no commitment required.</p>
@@ -5196,10 +5192,7 @@ nav { position: relative; z-index: 9999; }
   function showPopup() {
     var ov = document.getElementById('cb-overlay');
     if (!ov || sessionStorage.getItem('cbSubmitted')) return;
-    ov.style.display       = '';
-    ov.style.opacity       = '1';
-    ov.style.pointerEvents = 'auto';
-    ov.style.animation     = 'none';
+    ov.style.cssText = ''; // clear any leftover inline styles
     ov.classList.remove('cb-hidden');
     ov.classList.add('visible');
   }
@@ -5219,4 +5212,16 @@ nav { position: relative; z-index: 9999; }
 
     // Close on backdrop click
     ov.addEventListener('click', function(e) {
-      if (e.target === ov) closeCBPopup
+      if (e.target === ov) closeCBPopup();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeCBPopup();
+    });
+
+    // Initial show after 30 seconds
+    setTimeout(showPopup, 30000);
+  }
+
+  if (doc
