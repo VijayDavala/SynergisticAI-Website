@@ -5181,18 +5181,18 @@ nav { position: relative; z-index: 9999; }
   <script>
 /* ══ CALL-BACK POPUP ══ */
 (function() {
-  // If user has already submitted the form this session, suppress permanently
-  if (sessionStorage.getItem('cbSubmitted')) {
-    var style = document.createElement('style');
-    style.textContent = '#cb-overlay { animation: none !important; opacity: 0 !important; pointer-events: none !important; display: none !important; }';
-    document.head.appendChild(style);
-    return;
+  // Suppress popup for 24 hours after form submission (localStorage key with timestamp)
+  function _cbSubmitted() {
+    try {
+      var ts = localStorage.getItem('cb_submitted_at');
+      return ts && (Date.now() - Number(ts)) < 86400000; // 24 hours
+    } catch(e) { return false; }
   }
 
   function showPopup() {
     var ov = document.getElementById('cb-overlay');
-    if (!ov || sessionStorage.getItem('cbSubmitted')) return;
-    ov.style.cssText = ''; // clear any leftover inline styles
+    if (!ov || _cbSubmitted()) return;
+    ov.style.cssText = '';
     ov.classList.remove('cb-hidden');
     ov.classList.add('visible');
   }
@@ -5220,8 +5220,15 @@ nav { position: relative; z-index: 9999; }
       if (e.key === 'Escape') closeCBPopup();
     });
 
-    // Initial show after 30 seconds
-    setTimeout(showPopup, 30000);
+    // Show after 10 seconds
+    setTimeout(showPopup, 10000);
   }
 
-  if (doc
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPopup);
+  } else {
+    initPopup();
+  }
+})();
+
+function closeCBPopup() {
