@@ -5222,8 +5222,8 @@ nav { position: relative; z-index: 9999; }
       if (e.key === 'Escape') closeCBPopup();
     });
 
-    // Show after 10 seconds
-    setTimeout(showPopup, 10000);
+    // Show after 15 seconds on first visit
+    setTimeout(showPopup, 15000);
   }
 
   if (document.readyState === 'loading') {
@@ -5241,7 +5241,7 @@ function closeCBPopup() {
   ov.style.display = 'none';
   ov.style.pointerEvents = 'none';
   ov.style.opacity = '0';
-  // Re-appear after 2 minutes if user hasn't submitted
+  // Re-appear after 1 minute if user hasn't submitted
   setTimeout(function() {
     try {
       var ts = localStorage.getItem('cb_submitted_at');
@@ -5257,7 +5257,7 @@ function closeCBPopup() {
         }
       }
     } catch(e) {}
-  }, 120000);
+  }, 60000);
 }
 
 function submitCBForm(e) {
@@ -5318,5 +5318,4 @@ function submitCBForm(e) {
   </noscript>
   <!-- End LinkedIn Insight Tag -->
 
-</body>
-</html>
+</b
