@@ -2746,6 +2746,7 @@ nav { position: relative; z-index: 9999; }
       width:30px;height:30px;border-radius:50%;
       display:flex;align-items:center;justify-content:center;
       cursor:pointer;transition:all 0.2s;
+      z-index:10;
     }
     #cb-close:hover{background:rgba(255,255,255,0.18);color:#fff}
     #cb-right h2{font-family:'Orbitron',sans-serif;font-size:1.35rem;font-weight:800;color:#fff;margin:0 0 6px}
@@ -5131,7 +5132,7 @@ nav { position: relative; z-index: 9999; }
   <!-- ══ CALL-BACK POPUP ══ -->
   <div id="cb-overlay" role="dialog" aria-modal="true" aria-labelledby="cb-title">
     <div id="cb-modal">
-      <button id="cb-close" aria-label="Close popup" onclick="closeCBPopup()">&#215;</button>
+      <button id="cb-close" aria-label="Close popup" type="button">&#215;</button>
       <div id="cb-left">
         <div id="cb-left-title">Let's Talk<br>Business</div>
         <p>Get a free strategy call with our AI experts — no commitment required.</p>
@@ -5207,18 +5208,15 @@ nav { position: relative; z-index: 9999; }
     var ov = document.getElementById('cb-overlay');
     if (!ov) return;
 
+    // Close on X button click
+    var closeBtn = document.getElementById('cb-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        closeCBPopup();
+      });
+    }
+
     // Close on backdrop click
     ov.addEventListener('click', function(e) {
-      if (e.target === ov) closeCBPopup();
-    });
-
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeCBPopup();
-    });
-
-    // Initial show after 30 seconds
-    setTimeout(showPopup, 30000);
-  }
-
-  if (documen
+      if (e.target === ov) closeCBPopup
