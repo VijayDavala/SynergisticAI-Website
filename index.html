@@ -5320,16 +5320,20 @@ function submitCBForm(e) {
 
   <!-- WhatsApp Floating Chat Button -->
   <a
-    href="https://web.whatsapp.com/send?phone=+13342332455&text=Hello%20Synergistic%20AI%20Solutions%2C%20I%20need%20more%20information%20regarding%20the%20services%20that%20you%20offer.%20Thank%20you!"
+    href="https://web.whatsapp.com/send?phone=+919959992175&text=Hello%20Synergistic%20AI%20Solutions%2C%20I%20need%20more%20information%20regarding%20the%20services%20that%20you%20offer.%20Thank%20you!"
     target="_blank"
     rel="noopener noreferrer"
     id="wa-float-btn"
     aria-label="Chat with our strategist on WhatsApp"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="#fff">
-      <path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.774L.064 31.04a1 1 0 0 0 1.216 1.216l7.266-1.963A15.938 15.938 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm7.91 22.385c-.332.935-1.644 1.71-2.693 1.934-.717.153-1.654.275-4.806-1.033-4.034-1.657-6.63-5.748-6.83-6.013-.193-.264-1.622-2.16-1.622-4.12 0-1.96 1.027-2.924 1.392-3.322.332-.362.72-.453 1.013-.453.29 0 .58.003.834.016.268.013.627-.102.981.749.364.873 1.237 3.014 1.344 3.233.107.22.18.477.035.77-.144.29-.217.47-.432.722-.214.252-.45.563-.642.756-.215.212-.438.441-.188.865.25.424 1.11 1.832 2.383 2.966 1.637 1.46 3.017 1.91 3.44 2.124.424.215.673.18.923-.108.25-.29 1.07-1.247 1.355-1.675.284-.427.567-.356.956-.214.39.142 2.475 1.167 2.9 1.38.424.213.706.32.81.497.101.175.101 1.013-.23 1.946z"/>
-    </svg>
     <span id="wa-float-label">Chat with Our Strategist</span>
+    <span id="wa-float-icon">
+      <!-- Official WhatsApp phone-in-bubble icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="36" height="36">
+        <circle cx="24" cy="24" r="24" fill="#25D366"/>
+        <path fill="#fff" d="M24 10.5C16.544 10.5 10.5 16.544 10.5 24c0 2.356.638 4.563 1.748 6.468L10.5 37.5l7.248-1.728A13.432 13.432 0 0 0 24 37.5c7.456 0 13.5-6.044 13.5-13.5S31.456 10.5 24 10.5zm6.617 18.322c-.277.779-1.373 1.427-2.249 1.615-.598.128-1.38.23-4.012-.862-3.367-1.382-5.532-4.793-5.699-5.015-.16-.221-1.352-1.8-1.352-3.435 0-1.634.857-2.44 1.162-2.77.277-.302.601-.378.845-.378.242 0 .484.002.696.013.223.011.523-.085.818.625.304.728 1.032 2.514 1.122 2.698.09.183.15.398.029.642-.12.242-.18.392-.36.603-.18.21-.375.469-.536.63-.18.177-.366.368-.157.722.209.354.927 1.528 1.988 2.474 1.366 1.218 2.517 1.593 2.871 1.772.354.18.561.15.77-.09.209-.242.893-1.04 1.131-1.397.237-.357.473-.297.797-.178.325.118 2.065.974 2.42 1.151.354.178.589.267.676.415.085.146.085.846-.192 1.624z"/>
+      </svg>
+    </span>
   </a>
 
   <style>
@@ -5340,27 +5344,34 @@ function submitCBForm(e) {
       z-index: 9999;
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: #25D366;
-      color: #fff;
+      gap: 0;
       text-decoration: none;
-      border-radius: 50px;
-      padding: 12px 20px 12px 16px;
-      box-shadow: 0 4px 20px rgba(37,211,102,0.45);
-      font-family: inherit;
-      font-size: 0.92rem;
-      font-weight: 600;
-      transition: transform 0.2s, box-shadow 0.2s;
       white-space: nowrap;
+      transition: transform 0.2s;
     }
-    #wa-float-btn:hover {
-      transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 8px 28px rgba(37,211,102,0.55);
+    #wa-float-btn:hover { transform: translateY(-3px); }
+    #wa-float-label {
+      background: #fff;
+      color: #111;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 10px 14px 10px 16px;
+      border-radius: 50px 0 0 50px;
+      box-shadow: -2px 2px 10px rgba(0,0,0,0.15);
+      line-height: 1;
     }
-    #wa-float-btn svg { flex-shrink: 0; }
+    #wa-float-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 2px 2px 10px rgba(37,211,102,0.45);
+      border-radius: 50%;
+      line-height: 0;
+    }
     @media (max-width: 480px) {
       #wa-float-label { display: none; }
-      #wa-float-btn { padding: 14px; border-radius: 50%; }
+      #wa-float-icon { border-radius: 50%; }
     }
   </style>
   <!-- End WhatsApp Floating Chat Button -->
