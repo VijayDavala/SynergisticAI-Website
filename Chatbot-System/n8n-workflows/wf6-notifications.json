@@ -1,0 +1,180 @@
+{
+  "name": "WF6 — Multi-Channel Notifications",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a6b2c3d4-0006-0006-0006-000000000001",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Build notification messages\nconst categoryEmoji = { hot: '🔴🔥', warm: '🟡', cold: '🔵' }[input.lead_category] || '⚪';\nconst emoji = categoryEmoji;\n\nconst telegramMsg = `${emoji} <b>NEW ${(input.lead_category || 'LEAD').toUpperCase()} LEAD — Synergistic AI</b>\\n\\n` +\n  `👤 <b>Name:</b> ${input.first_name || 'Unknown'} ${input.last_name || ''}\\n` +\n  `🏢 <b>Company:</b> ${input.company || 'N/A'}\\n` +\n  `📧 <b>Email:</b> ${input.business_email || 'N/A'}\\n` +\n  `📱 <b>Phone:</b> ${input.phone_number || 'N/A'}\\n` +\n  `🌐 <b>Website:</b> ${input.company_website || 'N/A'}\\n` +\n  `🏭 <b>Industry:</b> ${input.industry || 'N/A'}\\n` +\n  `👥 <b>Employees:</b> ${input.employee_count || 'N/A'}\\n` +\n  `💰 <b>Budget:</b> ${input.monthly_budget || 'N/A'}\\n` +\n  `⚡ <b>Urgency:</b> ${input.urgency || 'N/A'}\\n` +\n  `🎯 <b>Service:</b> ${input.service_interest || 'N/A'}\\n` +\n  `📊 <b>Lead Score:</b> ${input.lead_score || 0}/100\\n\\n` +\n  `💬 <b>Challenge:</b> ${input.business_challenge || 'N/A'}\\n\\n` +\n  `🔗 <a href=\"https://app.hubspot.com/contacts/${input.hubspot_contact_id}\">View in HubSpot</a>`;\n\nconst slackMsg = {\n  blocks: [\n    {\n      type: 'header',\n      text: { type: 'plain_text', text: `${emoji} New ${(input.lead_category || 'Lead').charAt(0).toUpperCase() + (input.lead_category || 'lead').slice(1)} Lead — Synergistic AI` }\n    },\n    {\n      type: 'section',\n      fields: [\n        { type: 'mrkdwn', text: `*Name:*\\n${input.first_name || 'Unknown'} ${input.last_name || ''}` },\n        { type: 'mrkdwn', text: `*Company:*\\n${input.company || 'N/A'}` },\n        { type: 'mrkdwn', text: `*Email:*\\n${input.business_email || 'N/A'}` },\n        { type: 'mrkdwn', text: `*Budget:*\\n${input.monthly_budget || 'N/A'}` },\n        { type: 'mrkdwn', text: `*Urgency:*\\n${input.urgency || 'N/A'}` },\n        { type: 'mrkdwn', text: `*Lead Score:*\\n${input.lead_score || 0}/100` }\n      ]\n    },\n    {\n      type: 'section',\n      text: { type: 'mrkdwn', text: `*Business Challenge:*\\n${input.business_challenge || 'N/A'}` }\n    },\n    {\n      type: 'actions',\n      elements: [{\n        type: 'button',\n        text: { type: 'plain_text', text: 'View in HubSpot' },\n        url: `https://app.hubspot.com/contacts/${input.hubspot_contact_id}`,\n        style: 'primary'\n      }]\n    }\n  ]\n};\n\nconst emailSubject = `${emoji} ${(input.lead_category || 'New').toUpperCase()} LEAD: ${input.first_name || 'Unknown'} from ${input.company || 'Unknown Company'} (Score: ${input.lead_score || 0}/100)`;\n\nconst emailBody = `\n<html><body style=\"font-family:Arial,sans-serif;\">\n<h2 style=\"color:#1E3A5F;\">${emoji} New ${(input.lead_category || 'lead').charAt(0).toUpperCase() + (input.lead_category || 'lead').slice(1)} Lead Alert</h2>\n<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse:collapse;width:100%;\">\n<tr style=\"background:#1E3A5F;color:#fff;\"><th>Field</th><th>Value</th></tr>\n<tr><td><b>Name</b></td><td>${input.first_name || 'Unknown'} ${input.last_name || ''}</td></tr>\n<tr style=\"background:#f5f5f5;\"><td><b>Company</b></td><td>${input.company || 'N/A'}</td></tr>\n<tr><td><b>Email</b></td><td>${input.business_email || 'N/A'}</td></tr>\n<tr style=\"background:#f5f5f5;\"><td><b>Phone</b></td><td>${input.phone_number || 'N/A'}</td></tr>\n<tr><td><b>Industry</b></td><td>${input.industry || 'N/A'}</td></tr>\n<tr style=\"background:#f5f5f5;\"><td><b>Employees</b></td><td>${input.employee_count || 'N/A'}</td></tr>\n<tr><td><b>Budget</b></td><td>${input.monthly_budget || 'N/A'}</td></tr>\n<tr style=\"background:#f5f5f5;\"><td><b>Urgency</b></td><td>${input.urgency || 'N/A'}</td></tr>\n<tr><td><b>Service Interest</b></td><td>${input.service_interest || 'N/A'}</td></tr>\n<tr style=\"background:#f5f5f5;\"><td><b>Lead Score</b></td><td><b>${input.lead_score || 0}/100</b></td></tr>\n</table>\n<p><b>Business Challenge:</b><br>${input.business_challenge || 'N/A'}</p>\n<p><a href=\"https://app.hubspot.com/contacts/${input.hubspot_contact_id}\" style=\"background:#1E3A5F;color:#fff;padding:12px 24px;text-decoration:none;border-radius:4px;\">View in HubSpot →</a></p>\n</body></html>`;\n\nreturn [{\n  json: {\n    ...input,\n    telegram_msg: telegramMsg,\n    slack_msg: JSON.stringify(slackMsg),\n    email_subject: emailSubject,\n    email_body: emailBody,\n    is_hot: input.lead_category === 'hot',\n    is_escalation: input.event_type === 'human_escalation'\n  }\n}];"
+      },
+      "id": "a6b2c3d4-0006-0006-0006-000000000002",
+      "name": "Build Notification Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "chat_id": "={{ $env.TELEGRAM_CHAT_ID }}",
+          "text": "={{ $json.telegram_msg }}",
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        },
+        "options": {}
+      },
+      "id": "a6b2c3d4-0006-0006-0006-000000000003",
+      "name": "Telegram — Send Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 140]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SLACK_WEBHOOK_URL }}",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.parse($json.slack_msg) }}",
+        "options": {}
+      },
+      "id": "a6b2c3d4-0006-0006-0006-000000000004",
+      "name": "Slack — Send Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "hello@synergisticaisolns.com",
+        "toEmail": "={{ $env.SALES_TEAM_EMAIL }}",
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "html",
+        "message": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "id": "a6b2c3d4-0006-0006-0006-000000000005",
+      "name": "Email — Notify Sales Team",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [680, 460],
+      "credentials": {
+        "smtp": { "id": "SMTP_CREDENTIAL_ID", "name": "SMTP Account" }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "is-hot",
+              "leftValue": "={{ $('Build Notification Messages').first().json.is_hot }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a6b2c3d4-0006-0006-0006-000000000006",
+      "name": "Hot Lead or Escalation?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts/{{ $env.TWILIO_ACCOUNT_SID }}/Messages.json",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Basic {{ Buffer.from($env.TWILIO_ACCOUNT_SID + ':' + $env.TWILIO_AUTH_TOKEN).toString('base64') }}" },
+            { "name": "Content-Type", "value": "application/x-www-form-urlencoded" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "body": {
+          "From": "=whatsapp:{{ $env.TWILIO_WHATSAPP_FROM }}",
+          "To": "=whatsapp:{{ $env.SALES_WHATSAPP_NUMBER }}",
+          "Body": "=🔴 HOT LEAD ALERT — Synergistic AI\\n\\nName: {{ $('Build Notification Messages').first().json.first_name }} {{ $('Build Notification Messages').first().json.last_name }}\\nCompany: {{ $('Build Notification Messages').first().json.company }}\\nEmail: {{ $('Build Notification Messages').first().json.business_email }}\\nScore: {{ $('Build Notification Messages').first().json.lead_score }}/100\\nBudget: {{ $('Build Notification Messages').first().json.monthly_budget }}\\n\\nFollow up IMMEDIATELY!"
+        },
+        "options": {}
+      },
+      "id": "a6b2c3d4-0006-0006-0006-000000000007",
+      "name": "WhatsApp — Hot Lead Alert (Twilio)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 200]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [[{ "node": "Build Notification Messages", "type": "main", "index": 0 }]]
+    },
+    "Build Notification Messages": {
+      "main": [[
+        { "node": "Telegram — Send Alert", "type": "main", "index": 0 },
+        { "node": "Slack — Send Alert", "type": "main", "index": 0 },
+        { "node": "Email — Notify Sales Team", "type": "main", "index": 0 },
+        { "node": "Hot Lead or Escalation?", "type": "main", "index": 0 }
+      ]]
+    },
+    "Hot Lead or Escalation?": {
+      "main": [
+        [{ "node": "WhatsApp — Hot Lead Alert (Twilio)", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "WF_ERROR_HANDLER_ID"
+  },
+  "meta": {
+    "description": "Sends multi-channel notifications (Telegram, Slack, Email, WhatsApp for hot leads) when new leads are generated or human escalation requested."
+  },
+  "tags": [{ "name": "chatbot" }, { "name": "notifications" }],
+  "_setupNotes": {
+    "TELEGRAM_BOT_TOKEN": "Create bot via @BotFather on Telegram. Get token. Start the bot or add to a group to get CHAT_ID.",
+    "TELEGRAM_CHAT_ID": "Your Telegram user ID or group chat ID. Send a message to @userinfobot to get your ID.",
+    "SLACK_WEBHOOK_URL": "Create an Incoming Webhook in your Slack workspace: api.slack.com/apps → Create App → Incoming Webhooks",
+    "SALES_TEAM_EMAIL": "Email address(es) to notify — separate multiple with commas in n8n Email Send node",
+    "TWILIO_ACCOUNT_SID": "Optional — only needed for WhatsApp alerts. Get from Twilio console.",
+    "TWILIO_AUTH_TOKEN": "Optional — Twilio auth token",
+    "TWILIO_WHATSAPP_FROM": "Your Twilio WhatsApp sender number e.g. +14155238886",
+    "SALES_WHATSAPP_NUMBER": "Sales rep WhatsApp number in E.164 format e.g. +1234567890"
+  }
+}

@@ -1,0 +1,284 @@
+{
+  "name": "WF7 — Follow-up Automation Sequence",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 1 }]
+        }
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000001",
+      "name": "Schedule — Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/follow_ups",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "status", "value": "eq.pending" },
+            { "name": "scheduled_at", "value": "=lte.{{ new Date().toISOString() }}" },
+            { "name": "select", "value": "id,lead_id,sequence_day,email_subject" },
+            { "name": "limit", "value": "50" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000002",
+      "name": "Supabase — Get Pending Follow-ups",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "has-items",
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000003",
+      "name": "Any Pending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=",
+        "options": {}
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000004",
+      "name": "Loop Over Follow-ups",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/leads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "id", "value": "=eq.{{ $json.lead_id }}" },
+            { "name": "select", "value": "id,first_name,last_name,business_email,company,service_of_interest,message" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000005",
+      "name": "Supabase — Get Lead Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const followUp = $('Loop Over Follow-ups').first().json;\nconst leadData = $input.first().json[0] || {};\n\nconst day = followUp.sequence_day;\n\n// Email templates per day\nconst templates = {\n  0: {\n    subject: `Welcome to Synergistic AI, ${leadData.first_name || 'there'}! Here's what happens next`,\n    intro: `Thank you for connecting with us! We're thrilled to learn about your business and explore how we can help you achieve your goals with AI and automation.`,\n    body: `Our team has reviewed your inquiry about <b>${leadData.service_of_interest || 'our services'}</b> and we're ready to help.\\n\\n<b>Here's what to expect:</b>\\n✅ A personalized strategy session with our AI experts\\n✅ A custom automation roadmap for your business\\n✅ Clear pricing and timeline estimates\\n✅ No pressure, no obligation`,\n    cta: 'Schedule Your Free Strategy Session',\n    ctaUrl: process.env.CALENDLY_BOOKING_URL || 'https://calendly.com/synergistic-ai'\n  },\n  1: {\n    subject: `How ${leadData.service_of_interest || 'AI Automation'} works at Synergistic AI`,\n    intro: `Yesterday you reached out about ${leadData.service_of_interest || 'our services'}. Today I want to give you a deeper look at exactly how we work.`,\n    body: `<b>Our Proven Process:</b>\\n\\n<b>Step 1: Discovery (Week 1)</b>\\nWe map your current workflows, identify automation opportunities, and define clear ROI targets.\\n\\n<b>Step 2: Build (Weeks 2-4)</b>\\nOur team builds your custom automation system — no off-the-shelf solutions.\\n\\n<b>Step 3: Test & Launch (Week 5)</b>\\nRigorous testing, staff training, and a smooth go-live.\\n\\n<b>Step 4: Optimise (Ongoing)</b>\\nWe monitor performance, refine automations, and scale as your business grows.`,\n    cta: 'See Our Full Process',\n    ctaUrl: 'https://synergisticaisolns.com'\n  },\n  3: {\n    subject: `How a similar business automated their ${leadData.service_of_interest || 'operations'} [Case Study]`,\n    intro: `Real results speak louder than promises. Here's how a business similar to ${leadData.company || 'yours'} transformed their operations with our help.`,\n    body: `<b>📊 Case Study: B2B Services Company</b>\\n\\n<b>Challenge:</b> Manual lead qualification taking 4+ hours/day. CRM data out of sync. Sales team overwhelmed.\\n\\n<b>Solution:</b> Custom AI chatbot + n8n automation + HubSpot CRM integration\\n\\n<b>Results (90 days):</b>\\n🚀 <b>340% increase</b> in qualified leads captured\\n⏱️ <b>18 hours/week saved</b> on manual data entry\\n💰 <b>$127K additional pipeline</b> from leads that would have been missed\\n📈 <b>28% improvement</b> in lead-to-meeting conversion rate\\n\\nThis is what's possible for ${leadData.company || 'your business'} too.`,\n    cta: 'Get Results Like This',\n    ctaUrl: process.env.CALENDLY_BOOKING_URL || 'https://calendly.com/synergistic-ai'\n  },\n  5: {\n    subject: `Your free strategy session is still available, ${leadData.first_name || 'there'}`,\n    intro: `A quick friendly reminder — your complimentary 30-minute AI strategy session is still open and waiting for you.`,\n    body: `In this session, we'll:\\n\\n✅ Review your specific business challenge: \"${leadData.message?.slice(0, 100) || 'your automation goals'}\"\\n✅ Show you a live demo of what's possible for your business\\n✅ Give you a concrete roadmap — even if you decide not to work with us\\n✅ Answer every question you have about AI, automation, and ROI\\n\\n<b>Zero pressure. Zero obligation. 100% value.</b>\\n\\nSpots are limited — our team books up quickly.`,\n    cta: 'Book My Free Session Now',\n    ctaUrl: process.env.CALENDLY_BOOKING_URL || 'https://calendly.com/synergistic-ai'\n  },\n  7: {\n    subject: `🎁 Exclusive offer for you — this week only`,\n    intro: `I don't want to let you slip away without giving you every reason to get started.`,\n    body: `For the next 7 days, we're offering <b>new clients a free AI readiness audit</b> (normally $500) when they sign up for any of our services.\\n\\n<b>What's included in your free audit:</b>\\n📋 Full mapping of your current business processes\\n🤖 AI automation opportunity assessment\\n💰 ROI projections for each identified opportunity\\n🗺️ A prioritised implementation roadmap\\n\\nThis offer expires in 7 days and is limited to 5 new clients this month.\\n\\n<b>Based on what you shared with us, we believe we can save ${leadData.company || 'your business'} significant time and money — and we want to prove it to you.</b>`,\n    cta: 'Claim My Free AI Audit',\n    ctaUrl: process.env.CALENDLY_BOOKING_URL || 'https://calendly.com/synergistic-ai'\n  }\n};\n\nconst template = templates[day] || templates[1];\n\nconst emailHtml = `\n<!DOCTYPE html>\n<html>\n<head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"></head>\n<body style=\"margin:0;padding:0;font-family:Arial,sans-serif;background:#f5f5f5;\">\n<div style=\"max-width:600px;margin:0 auto;background:#fff;\">\n  <div style=\"background:#1E3A5F;padding:24px 32px;\">\n    <h1 style=\"color:#fff;margin:0;font-size:24px;\">Synergistic AI Solutions</h1>\n    <p style=\"color:#00A8E8;margin:4px 0 0;\">AI Automation & Digital Marketing</p>\n  </div>\n  <div style=\"padding:32px;\">\n    <p style=\"color:#333;font-size:16px;\">Hi ${leadData.first_name || 'there'},</p>\n    <p style=\"color:#333;font-size:15px;line-height:1.6;\">${template.intro}</p>\n    <div style=\"background:#f9f9f9;border-left:4px solid #00A8E8;padding:20px 24px;margin:24px 0;border-radius:0 8px 8px 0;\">\n      <p style=\"color:#333;font-size:15px;line-height:1.8;margin:0;\">${template.body.replace(/\\n/g, '<br>')}</p>\n    </div>\n    <div style=\"text-align:center;margin:32px 0;\">\n      <a href=\"${template.ctaUrl}\" style=\"background:#1E3A5F;color:#fff;padding:16px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">${template.cta} →</a>\n    </div>\n    <p style=\"color:#666;font-size:14px;\">— Vijay Davala<br>Founder, Synergistic AI Solutions<br><a href=\"https://synergisticaisolns.com\" style=\"color:#00A8E8;\">synergisticaisolns.com</a></p>\n  </div>\n  <div style=\"background:#1E3A5F;padding:16px 32px;text-align:center;\">\n    <p style=\"color:#aaa;font-size:12px;margin:0;\">© 2026 Synergistic AI Solutions | <a href=\"https://synergisticaisolns.com\" style=\"color:#00A8E8;\">synergisticaisolns.com</a><br>You received this because you contacted us. <a href=\"#unsubscribe\" style=\"color:#aaa;\">Unsubscribe</a></p>\n  </div>\n</div>\n</body></html>`;\n\nreturn [{\n  json: {\n    follow_up_id: followUp.id,\n    lead_id: leadData.id,\n    to_email: leadData.business_email,\n    first_name: leadData.first_name,\n    subject: template.subject,\n    email_html: emailHtml,\n    sequence_day: day\n  }\n}];"
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000006",
+      "name": "Build Email for Sequence Day",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "hello@synergisticaisolns.com",
+        "toEmail": "={{ $json.to_email }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.email_html }}",
+        "options": {
+          "replyTo": "hello@synergisticaisolns.com"
+        }
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000007",
+      "name": "Send Follow-up Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1560, 200],
+      "credentials": {
+        "smtp": { "id": "SMTP_CREDENTIAL_ID", "name": "SMTP Account" }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/follow_ups",
+        "method": "PATCH",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "id", "value": "=eq.{{ $('Build Email for Sequence Day').first().json.follow_up_id }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "status": "sent",
+          "sent_at": "={{ new Date().toISOString() }}",
+          "email_subject": "={{ $('Build Email for Sequence Day').first().json.subject }}"
+        },
+        "options": {}
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000008",
+      "name": "Supabase — Mark Follow-up Sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/notes",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.HUBSPOT_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "properties": {
+            "hs_note_body": "=Follow-up email sent — Day {{ $('Build Email for Sequence Day').first().json.sequence_day }} of 7-day sequence.\\nSubject: {{ $('Build Email for Sequence Day').first().json.subject }}\\nSent at: {{ new Date().toISOString() }}",
+            "hs_timestamp": "={{ Date.now() }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000009",
+      "name": "HubSpot — Log Email Activity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Also called directly from WF5 to enroll a NEW lead in the sequence\n// This sub-function creates the follow_up rows for days 0,1,3,5,7\nconst input = $input.first().json;\nconst leadId = input.lead_id;\n\nconst now = new Date();\nconst days = [0, 1, 3, 5, 7];\n\nconst rows = days.map(day => {\n  const scheduledAt = new Date(now.getTime() + day * 24 * 60 * 60 * 1000);\n  // For day 0 schedule 30 minutes from now\n  if (day === 0) scheduledAt.setMinutes(scheduledAt.getMinutes() + 30);\n  return {\n    lead_id: leadId,\n    sequence_day: day,\n    scheduled_at: scheduledAt.toISOString(),\n    status: 'pending'\n  };\n});\n\nreturn [{ json: { rows, lead_id: leadId } }];"
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000010",
+      "name": "Enroll New Lead (called from WF5)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 520],
+      "notes": "This node is called from WF5 when a new lead is qualified. It creates the 5 follow-up schedule rows in Supabase."
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/follow_ups",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ $json.rows }}",
+        "options": {}
+      },
+      "id": "a7b2c3d4-0007-0007-0007-000000000011",
+      "name": "Supabase — Create Follow-up Schedule",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 520]
+    }
+  ],
+  "connections": {
+    "Schedule — Every Hour": {
+      "main": [[{ "node": "Supabase — Get Pending Follow-ups", "type": "main", "index": 0 }]]
+    },
+    "Supabase — Get Pending Follow-ups": {
+      "main": [[{ "node": "Any Pending?", "type": "main", "index": 0 }]]
+    },
+    "Any Pending?": {
+      "main": [
+        [{ "node": "Loop Over Follow-ups", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Loop Over Follow-ups": {
+      "main": [[{ "node": "Supabase — Get Lead Data", "type": "main", "index": 0 }]]
+    },
+    "Supabase — Get Lead Data": {
+      "main": [[{ "node": "Build Email for Sequence Day", "type": "main", "index": 0 }]]
+    },
+    "Build Email for Sequence Day": {
+      "main": [[{ "node": "Send Follow-up Email", "type": "main", "index": 0 }]]
+    },
+    "Send Follow-up Email": {
+      "main": [[
+        { "node": "Supabase — Mark Follow-up Sent", "type": "main", "index": 0 },
+        { "node": "HubSpot — Log Email Activity", "type": "main", "index": 0 }
+      ]]
+    },
+    "Enroll New Lead (called from WF5)": {
+      "main": [[{ "node": "Supabase — Create Follow-up Schedule", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "WF_ERROR_HANDLER_ID"
+  },
+  "meta": {
+    "description": "Hourly cron checks for pending follow-ups. Sends personalised Day 0/1/3/5/7 emails. Also exposes enrollment entry point called by WF5 for new leads."
+  },
+  "tags": [{ "name": "chatbot" }, { "name": "follow-up" }, { "name": "email-sequence" }],
+  "_setupNotes": {
+    "SEQUENCE": "Days: 0 (Welcome, 30min), 1 (Service Info, +1 day), 3 (Case Study, +3 days), 5 (Consultation Reminder, +5 days), 7 (Special Offer, +7 days)",
+    "SMTP_CREDENTIAL_ID": "Set up SMTP credential in n8n. Recommend SendGrid for tracking open/click rates.",
+    "CALENDLY_BOOKING_URL": "Update all CTA URLs with your actual Calendly booking link",
+    "UNSUBSCRIBE": "Add proper unsubscribe handling before production launch to comply with CAN-SPAM / GDPR"
+  }
+}

@@ -1,0 +1,264 @@
+═══════════════════════════════════════════════════════════════════════
+ SYNERGISTIC AI SOLUTIONS — CHATBOT SYSTEM SETUP GUIDE
+ Generated: June 2026
+═══════════════════════════════════════════════════════════════════════
+
+DELIVERABLES IN THIS FOLDER
+────────────────────────────
+n8n-workflows/
+  wf1-visitor-intake.json        ← Import first
+  wf2-ai-response-engine.json    ← Import second
+  wf3-lead-qualification.json    ← Import third
+  wf4-appointment-booking.json   ← Import fourth
+  wf5-crm-sync.json              ← Import fifth
+  wf6-notifications.json         ← Import sixth
+  wf7-followup-automation.json   ← Import seventh (has cron trigger)
+
+chatbot-widget.html              ← Embed code for your website
+SETUP-GUIDE.txt                  ← This file
+
+
+STEP 1 — GET YOUR SERVICES
+───────────────────────────
+□ n8n account: cloud.n8n.io (recommended) OR self-host on a VPS
+□ OpenAI API key: platform.openai.com
+□ HubSpot account + Private App token (free CRM is fine to start)
+□ Calendly account + API token + your scheduling link
+□ Telegram Bot: message @BotFather → /newbot → get token + your chat_id
+□ Slack Incoming Webhook URL: api.slack.com/apps
+□ SMTP credentials (SendGrid free or Gmail SMTP)
+
+
+STEP 2 — SET n8n ENVIRONMENT VARIABLES
+────────────────────────────────────────
+In n8n → Settings → Environment Variables, add:
+
+  SUPABASE_URL          = https://pduemybwotfrtznpvyii.supabase.co
+  SUPABASE_SERVICE_KEY  = [Your Supabase service_role key — NOT the anon key]
+  OPENAI_API_KEY        = sk-...
+  HUBSPOT_ACCESS_TOKEN  = [HubSpot Private App token]
+  CALENDLY_API_TOKEN    = [Calendly Personal Access Token]
+  CALENDLY_USER_URI     = [GET https://api.calendly.com/users/me after auth]
+  CALENDLY_BOOKING_URL  = https://calendly.com/YOUR-HANDLE
+  TELEGRAM_BOT_TOKEN    = [From @BotFather]
+  TELEGRAM_CHAT_ID      = [Your Telegram user/group ID]
+  SLACK_WEBHOOK_URL     = https://hooks.slack.com/services/...
+  SALES_TEAM_EMAIL      = vijay@synergisticaisolns.com
+  SALES_WHATSAPP_NUMBER = +1XXXXXXXXXX   ← optional
+  TWILIO_ACCOUNT_SID    = ...            ← optional (WhatsApp alerts)
+  TWILIO_AUTH_TOKEN     = ...            ← optional
+  TWILIO_WHATSAPP_FROM  = +14155238886   ← optional
+
+
+STEP 3 — SUPABASE DATABASE SETUP
+──────────────────────────────────
+Open your Supabase project → SQL Editor → run these in order:
+
+-- Enable pgvector
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Sessions table
+CREATE TABLE sessions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  visitor_id text NOT NULL,
+  started_at timestamptz NOT NULL DEFAULT now(),
+  last_activity timestamptz DEFAULT now(),
+  page_url text,
+  utm_source text, utm_medium text, utm_campaign text,
+  is_returning boolean NOT NULL DEFAULT false,
+  status text NOT NULL DEFAULT 'active'
+);
+CREATE INDEX ON sessions (visitor_id);
+
+-- Conversations table
+CREATE TABLE conversations (
+  id bigserial PRIMARY KEY,
+  session_id uuid REFERENCES sessions(id),
+  role text NOT NULL,
+  content text NOT NULL,
+  intent text,
+  confidence float4,
+  tokens_used integer,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX ON conversations (session_id);
+
+-- Lead qualifications (extends your existing leads table)
+CREATE TABLE lead_qualifications (
+  id bigserial PRIMARY KEY,
+  lead_id bigint REFERENCES leads(id),
+  session_id uuid REFERENCES sessions(id),
+  company_website text,
+  industry text,
+  employee_count text,
+  monthly_budget text,
+  business_challenge text,
+  decision_maker boolean,
+  urgency text,
+  lead_score integer DEFAULT 0,
+  lead_category text DEFAULT 'cold',
+  hubspot_contact_id text,
+  hubspot_deal_id text,
+  conversation_summary text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Appointments table
+CREATE TABLE appointments (
+  id bigserial PRIMARY KEY,
+  session_id uuid REFERENCES sessions(id),
+  lead_id bigint REFERENCES leads(id),
+  calendly_event_id text,
+  scheduled_at timestamptz,
+  duration_mins integer DEFAULT 30,
+  status text NOT NULL DEFAULT 'scheduling',
+  meeting_link text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Follow-ups table
+CREATE TABLE follow_ups (
+  id bigserial PRIMARY KEY,
+  lead_id bigint NOT NULL REFERENCES leads(id),
+  sequence_day integer NOT NULL,
+  scheduled_at timestamptz NOT NULL,
+  sent_at timestamptz,
+  email_subject text,
+  status text NOT NULL DEFAULT 'pending',
+  open_count integer DEFAULT 0,
+  click_count integer DEFAULT 0
+);
+CREATE INDEX ON follow_ups (status, scheduled_at);
+
+-- Knowledge base (for RAG)
+CREATE TABLE knowledge_base_docs (
+  id bigserial PRIMARY KEY,
+  title text NOT NULL,
+  source_type text NOT NULL,
+  source_url text,
+  content text NOT NULL,
+  embedding vector(1536),
+  chunk_index integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz
+);
+
+-- Similarity search function
+CREATE OR REPLACE FUNCTION match_documents(
+  query_embedding vector(1536),
+  match_threshold float DEFAULT 0.75,
+  match_count int DEFAULT 5
+) RETURNS TABLE (id bigint, title text, content text, similarity float)
+LANGUAGE SQL STABLE AS $$
+  SELECT id, title, content,
+    1 - (embedding <=> query_embedding) AS similarity
+  FROM knowledge_base_docs
+  WHERE 1 - (embedding <=> query_embedding) > match_threshold
+  ORDER BY embedding <=> query_embedding
+  LIMIT match_count;
+$$;
+
+-- Vector index
+CREATE INDEX ON knowledge_base_docs
+  USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+
+
+STEP 4 — IMPORT n8n WORKFLOWS
+───────────────────────────────
+1. Open n8n
+2. Go to Workflows → Import from File
+3. Import each JSON file IN ORDER (WF1 first, WF7 last)
+4. After importing ALL 7, get each workflow's ID from its URL
+5. Go back and update the "Execute Workflow" nodes:
+   - In WF1: update "WF2_AI_RESPONSE_ENGINE_ID" with WF2's actual ID
+   - In WF2: update "WF3_LEAD_QUALIFICATION_ID" with WF3's actual ID
+   - In WF3: update "WF5_CRM_SYNC_ID" with WF5's actual ID
+   - In WF5: update "WF6_NOTIFICATIONS_ID" and "WF7_FOLLOWUP_ID"
+6. Set up SMTP credential in n8n Credentials
+7. Activate all workflows (toggle to ON)
+
+
+STEP 5 — LOAD YOUR KNOWLEDGE BASE
+────────────────────────────────────
+In n8n, create a simple ingestion workflow:
+  Read Text File → Split text into 500-char chunks → For Each chunk:
+    POST to OpenAI /embeddings (model: text-embedding-3-small)
+    INSERT into knowledge_base_docs (title, source_type, content, embedding)
+
+Documents to ingest:
+  - Copy text from synergisticaisolns.com service pages
+  - Your FAQ document
+  - Service pricing ranges
+  - Case studies (anonymised)
+  - About/team page content
+
+
+STEP 6 — EMBED CHATBOT IN WEBSITE
+────────────────────────────────────
+1. Open chatbot-widget.html and copy:
+   a. The <style> block → paste into index.html <head>
+   b. The WIDGET HTML block → paste inside <body>
+   c. The <script> block → paste before </body>
+
+2. In the script, update:
+   webhookUrl:    'https://YOUR_N8N_DOMAIN/webhook/chat-intake'
+   webhookSecret: 'YOUR_WEBHOOK_SECRET'  (match n8n env var)
+
+3. Update vercel.json Content-Security-Policy to allow your n8n domain:
+   Add to connect-src: https://your-n8n-domain.com
+
+4. Push to GitHub → Vercel auto-deploys
+
+
+STEP 7 — TEST THE FULL FLOW
+────────────────────────────
+□ Open synergisticaisolns.com → chat bubble appears → click it
+□ Bot greets you → type "I need AI automation for my business"
+□ Check n8n → WF1 execution appeared → WF2 triggered
+□ Bot responds with relevant info
+□ Continue conversation → provide name, company, email, etc.
+□ Check Supabase → conversations table has messages
+□ Check Supabase → lead_qualifications table has score
+□ Check HubSpot → new contact + deal created
+□ Check Telegram/Slack → notification received
+□ Check email inbox → confirmation received
+
+
+LEAD SCORING REFERENCE
+───────────────────────
+Budget:         $10K+/mo=30, $5-10K=20, $1-5K=10, <$1K=0
+Company Size:   200+=25, 51-200=20, 11-50=10, 1-10=5
+Decision Maker: Yes=20, No=0
+Urgency:        Immediately=15, 1-3 months=10, Exploring=0
+Service Fit:    AI/Agents/n8n=10, CRM/Chatbot=7, Marketing=5
+
+HOT LEAD  (75-100): Immediate Telegram + Slack + Email + WhatsApp
+WARM LEAD (50-74):  Email + Slack notification
+COLD LEAD  (0-49):  Slack only + enroll in nurture sequence
+
+
+FOLLOW-UP SEQUENCE
+───────────────────
+Day 0 (+30 min):  Welcome + what to expect
+Day 1:            Service deep-dive for their interest
+Day 3:            Case study / social proof
+Day 5:            Soft consultation reminder
+Day 7:            Special offer (free AI audit)
+
+
+ESTIMATED MONTHLY COST (starter)
+──────────────────────────────────
+n8n Cloud Starter:     $24
+OpenAI API (~1K msgs): $30
+Supabase (free tier):  $0
+HubSpot (free CRM):    $0
+SendGrid (free):       $0
+Calendly (free):       $0
+TOTAL:                 ~$54/month
+
+
+SUPPORT
+────────
+Questions? Email: aiadventureworld@gmail.com
+Website: synergisticaisolns.com
+═══════════════════════════════════════════════════════════════════════

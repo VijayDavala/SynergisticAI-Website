@@ -1,0 +1,563 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║  SYNERGISTIC AI SOLUTIONS — CHATBOT WIDGET                          ║
+  ║  Copy the contents of <style> and the #sai-chat-* elements into    ║
+  ║  your index.html, and copy the <script> block before </body>.       ║
+  ║                                                                      ║
+  ║  UPDATE BEFORE USE:                                                  ║
+  ║  1. SAI_WEBHOOK_URL → your n8n webhook URL                          ║
+  ║  2. SAI_WEBHOOK_SECRET → your webhook secret (env var in n8n)       ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+-->
+
+<!-- ═══════════════════════════ WIDGET HTML ═══════════════════════════ -->
+<!-- Paste this block anywhere inside <body> of index.html -->
+
+<style>
+/* ── CHATBOT WIDGET STYLES ──────────────────────────────────────────── */
+#sai-chat-bubble {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #1E3A5F 0%, #00A8E8 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,168,232,0.45);
+  z-index: 999998;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: sai-pulse 2.5s infinite;
+}
+#sai-chat-bubble:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 28px rgba(0,168,232,0.6);
+}
+#sai-chat-bubble svg { width: 28px; height: 28px; fill: #fff; }
+@keyframes sai-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0,168,232,0.45); }
+  50%       { box-shadow: 0 4px 30px rgba(0,168,232,0.75); }
+}
+#sai-chat-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 18px;
+  height: 18px;
+  background: #ff4757;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+/* ── CHAT WINDOW ───────────────────────────────────────────────────── */
+#sai-chat-window {
+  position: fixed;
+  bottom: 96px;
+  right: 24px;
+  width: 380px;
+  max-height: 580px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 50px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  z-index: 999999;
+  font-family: Arial, sans-serif;
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+#sai-chat-window.sai-open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+@media (max-width: 480px) {
+  #sai-chat-window {
+    width: calc(100vw - 24px);
+    right: 12px;
+    bottom: 88px;
+    max-height: calc(100vh - 110px);
+  }
+  #sai-chat-bubble { bottom: 16px; right: 16px; }
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────────── */
+#sai-chat-header {
+  background: linear-gradient(135deg, #1E3A5F 0%, #0d2a4a 100%);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+#sai-chat-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #00A8E8, #0077b6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.sai-header-text { flex: 1; }
+.sai-header-text h4 { color: #fff; margin: 0; font-size: 15px; font-weight: 700; }
+.sai-header-text p  { color: #00A8E8; margin: 2px 0 0; font-size: 12px; }
+#sai-online-dot {
+  width: 9px; height: 9px;
+  background: #00e676; border-radius: 50%;
+  box-shadow: 0 0 6px #00e676;
+  animation: sai-blink 2s infinite;
+  flex-shrink: 0;
+}
+@keyframes sai-blink {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+}
+#sai-chat-close {
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,0.6); font-size: 22px; line-height: 1;
+  padding: 0; transition: color 0.15s;
+}
+#sai-chat-close:hover { color: #fff; }
+
+/* ── MESSAGES ───────────────────────────────────────────────────────── */
+#sai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f8fafc;
+  scroll-behavior: smooth;
+}
+#sai-messages::-webkit-scrollbar { width: 4px; }
+#sai-messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+
+.sai-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+  animation: sai-fadein 0.2s ease;
+}
+@keyframes sai-fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.sai-msg-bot {
+  background: #fff;
+  color: #1a1a2e;
+  align-self: flex-start;
+  border: 1px solid #e8edf3;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.sai-msg-user {
+  background: linear-gradient(135deg, #1E3A5F, #00A8E8);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.sai-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #e8edf3;
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.sai-dot {
+  width: 7px; height: 7px;
+  background: #00A8E8; border-radius: 50%;
+  animation: sai-bounce 1.2s infinite;
+}
+.sai-dot:nth-child(2) { animation-delay: 0.2s; }
+.sai-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes sai-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(-6px); }
+}
+
+/* ── QUICK REPLIES ──────────────────────────────────────────────────── */
+#sai-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 8px;
+  background: #f8fafc;
+}
+.sai-quick-btn {
+  background: #fff;
+  border: 1.5px solid #00A8E8;
+  color: #00A8E8;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: Arial, sans-serif;
+  white-space: nowrap;
+}
+.sai-quick-btn:hover { background: #00A8E8; color: #fff; }
+
+/* ── INPUT BAR ──────────────────────────────────────────────────────── */
+#sai-input-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #fff;
+  border-top: 1px solid #e8edf3;
+  flex-shrink: 0;
+}
+#sai-input {
+  flex: 1;
+  border: 1.5px solid #e0e7ef;
+  border-radius: 24px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  outline: none;
+  resize: none;
+  background: #f8fafc;
+  transition: border-color 0.2s;
+  max-height: 100px;
+  overflow-y: auto;
+}
+#sai-input:focus { border-color: #00A8E8; background: #fff; }
+#sai-input::placeholder { color: #aab; }
+#sai-send-btn {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #1E3A5F, #00A8E8);
+  border: none; border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+#sai-send-btn:hover { transform: scale(1.06); box-shadow: 0 4px 12px rgba(0,168,232,0.4); }
+#sai-send-btn svg { width: 18px; height: 18px; fill: #fff; }
+#sai-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── FOOTER ─────────────────────────────────────────────────────────── */
+#sai-chat-footer {
+  text-align: center;
+  padding: 6px;
+  font-size: 10px;
+  color: #bbb;
+  background: #fff;
+  font-family: Arial, sans-serif;
+}
+</style>
+
+<!-- BUBBLE -->
+<div id="sai-chat-bubble" role="button" aria-label="Open chat" onclick="saiToggleChat()">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+  </svg>
+  <div id="sai-chat-badge">1</div>
+</div>
+
+<!-- CHAT WINDOW -->
+<div id="sai-chat-window" role="dialog" aria-label="Chat with Synergy">
+  <!-- Header -->
+  <div id="sai-chat-header">
+    <div id="sai-chat-avatar">🤖</div>
+    <div class="sai-header-text">
+      <h4>Synergy</h4>
+      <p>AI Assistant · Synergistic AI Solutions</p>
+    </div>
+    <div id="sai-online-dot" title="Online"></div>
+    <button id="sai-chat-close" onclick="saiToggleChat()" aria-label="Close chat">✕</button>
+  </div>
+
+  <!-- Messages -->
+  <div id="sai-messages"></div>
+
+  <!-- Quick Replies -->
+  <div id="sai-quick-replies"></div>
+
+  <!-- Input -->
+  <div id="sai-input-area">
+    <textarea
+      id="sai-input"
+      placeholder="Type your message..."
+      rows="1"
+      maxlength="2000"
+      aria-label="Type your message"
+      onkeydown="saiHandleKey(event)"
+      oninput="saiAutoResize(this)"
+    ></textarea>
+    <button id="sai-send-btn" onclick="saiSend()" aria-label="Send message">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+
+  <div id="sai-chat-footer">Powered by Synergistic AI · <a href="https://synergisticaisolns.com" style="color:#00A8E8;text-decoration:none;">synergisticaisolns.com</a></div>
+</div>
+
+<!-- ═══════════════════════════ WIDGET SCRIPT ══════════════════════════ -->
+<!-- Paste this block before </body> in index.html -->
+
+<script>
+(function() {
+  'use strict';
+
+  // ── CONFIGURATION ────────────────────────────────────────────────────
+  const SAI_CONFIG = {
+    webhookUrl:    'https://YOUR_N8N_DOMAIN/webhook/chat-intake', // ← UPDATE THIS
+    webhookSecret: 'YOUR_WEBHOOK_SECRET',                          // ← UPDATE THIS
+    botName:       'Synergy',
+    greeting:      'Hi there! 👋 I\'m Synergy, your AI guide at Synergistic AI Solutions. Whether you\'re exploring AI automation, digital marketing, or need to streamline your business — I\'m here to help!\n\nWhat brings you in today?',
+    returningGreeting: 'Welcome back! 👋 Great to see you again. How can I help you today?',
+    quickReplies:  [
+      'AI Automation Services',
+      'Digital Marketing',
+      'Book a Free Consultation',
+      'Pricing & Packages'
+    ]
+  };
+
+  // ── STATE ─────────────────────────────────────────────────────────────
+  let saiSessionId   = null;
+  let saiVisitorId   = localStorage.getItem('sai_visitor_id') || null;
+  let saiIsOpen      = false;
+  let saiIsTyping    = false;
+  let saiHasGreeted  = false;
+  let saiMsgCount    = 0;
+
+  // Generate/retrieve visitor ID
+  if (!saiVisitorId) {
+    saiVisitorId = 'v_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+    try { localStorage.setItem('sai_visitor_id', saiVisitorId); } catch(e) {}
+  }
+
+  // ── DOM REFS ──────────────────────────────────────────────────────────
+  const $win    = () => document.getElementById('sai-chat-window');
+  const $msgs   = () => document.getElementById('sai-messages');
+  const $input  = () => document.getElementById('sai-input');
+  const $send   = () => document.getElementById('sai-send-btn');
+  const $quick  = () => document.getElementById('sai-quick-replies');
+  const $badge  = () => document.getElementById('sai-chat-badge');
+
+  // ── TOGGLE WINDOW ─────────────────────────────────────────────────────
+  window.saiToggleChat = function() {
+    saiIsOpen = !saiIsOpen;
+    $win().classList.toggle('sai-open', saiIsOpen);
+    $badge().style.display = 'none';
+
+    if (saiIsOpen && !saiHasGreeted) {
+      saiHasGreeted = true;
+      const isReturning = !!sessionStorage.getItem('sai_session_id');
+      saiSessionId = sessionStorage.getItem('sai_session_id') || null;
+      setTimeout(() => {
+        saiAppendBot(isReturning ? SAI_CONFIG.returningGreeting : SAI_CONFIG.greeting);
+        saiRenderQuickReplies(SAI_CONFIG.quickReplies);
+        $input().focus();
+      }, 300);
+    }
+    if (saiIsOpen) setTimeout(() => $input().focus(), 350);
+  };
+
+  // ── APPEND MESSAGES ───────────────────────────────────────────────────
+  function saiAppendUser(text) {
+    const div = document.createElement('div');
+    div.className = 'sai-msg sai-msg-user';
+    div.textContent = text;
+    $msgs().appendChild(div);
+    saiScrollBottom();
+  }
+
+  function saiAppendBot(text) {
+    const div = document.createElement('div');
+    div.className = 'sai-msg sai-msg-bot';
+    div.innerHTML = saiSanitize(text).replace(/\n/g, '<br>');
+    $msgs().appendChild(div);
+    saiScrollBottom();
+    return div;
+  }
+
+  function saiShowTyping() {
+    if (saiIsTyping) return;
+    saiIsTyping = true;
+    const el = document.createElement('div');
+    el.className = 'sai-typing';
+    el.id = 'sai-typing-indicator';
+    el.innerHTML = '<div class="sai-dot"></div><div class="sai-dot"></div><div class="sai-dot"></div>';
+    $msgs().appendChild(el);
+    saiScrollBottom();
+  }
+
+  function saiHideTyping() {
+    saiIsTyping = false;
+    const el = document.getElementById('sai-typing-indicator');
+    if (el) el.remove();
+  }
+
+  function saiScrollBottom() {
+    const m = $msgs();
+    m.scrollTop = m.scrollHeight;
+  }
+
+  function saiSanitize(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ── QUICK REPLIES ─────────────────────────────────────────────────────
+  function saiRenderQuickReplies(replies) {
+    const qr = $quick();
+    qr.innerHTML = '';
+    replies.forEach(r => {
+      const btn = document.createElement('button');
+      btn.className = 'sai-quick-btn';
+      btn.textContent = r;
+      btn.onclick = () => { qr.innerHTML = ''; saiSendMessage(r); };
+      qr.appendChild(btn);
+    });
+  }
+
+  // ── SEND MESSAGE ──────────────────────────────────────────────────────
+  window.saiSend = function() {
+    const inp = $input();
+    const text = inp.value.trim();
+    if (!text || saiIsTyping) return;
+    inp.value = '';
+    inp.style.height = '';
+    $quick().innerHTML = '';
+    saiSendMessage(text);
+  };
+
+  window.saiHandleKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      saiSend();
+    }
+  };
+
+  window.saiAutoResize = function(el) {
+    el.style.height = '';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  };
+
+  async function saiSendMessage(text) {
+    saiAppendUser(text);
+    $send().disabled = true;
+    saiShowTyping();
+
+    // Get UTM params
+    const params = new URLSearchParams(window.location.search);
+
+    const payload = {
+      message:      text,
+      visitor_id:   saiVisitorId,
+      session_id:   saiSessionId,
+      page_url:     window.location.href,
+      utm_source:   params.get('utm_source') || '',
+      utm_medium:   params.get('utm_medium') || '',
+      utm_campaign: params.get('utm_campaign') || ''
+    };
+
+    try {
+      const res = await fetch(SAI_CONFIG.webhookUrl, {
+        method:  'POST',
+        headers: {
+          'Content-Type':    'application/json',
+          'X-Webhook-Secret': SAI_CONFIG.webhookSecret
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(30000)
+      });
+
+      const data = await res.json();
+      saiHideTyping();
+
+      if (data.session_id) {
+        saiSessionId = data.session_id;
+        try { sessionStorage.setItem('sai_session_id', saiSessionId); } catch(e) {}
+      }
+
+      saiAppendBot(data.reply || "I'm having a small hiccup — please try again or email hello@synergisticaisolns.com 🙏");
+      saiMsgCount++;
+
+      // Show booking quick reply after 3+ messages
+      if (saiMsgCount >= 3 && data.next_action === 'continue') {
+        saiRenderQuickReplies(['Book a Free Consultation', 'Get Pricing', 'Talk to a Human']);
+      }
+
+      // Handle escalation
+      if (data.next_action === 'escalate') {
+        saiRenderQuickReplies(['Book a Free Consultation →']);
+      }
+
+    } catch (err) {
+      saiHideTyping();
+      if (err.name === 'TimeoutError') {
+        saiAppendBot("It's taking a bit longer than expected. Please try again or email us at hello@synergisticaisolns.com 😊");
+      } else {
+        saiAppendBot("I'm having a small hiccup — please try again in a moment or email hello@synergisticaisolns.com 🙏");
+      }
+    }
+
+    $send().disabled = false;
+    $input().focus();
+  }
+
+  // ── AUTO-OPEN AFTER 45 SECONDS (first visit only) ───────────────────
+  if (!sessionStorage.getItem('sai_auto_shown')) {
+    setTimeout(() => {
+      if (!saiIsOpen) {
+        sessionStorage.setItem('sai_auto_shown', '1');
+        $badge().style.display = 'flex';
+        // Optionally auto-open: saiToggleChat();
+      }
+    }, 45000);
+  }
+
+})();
+</script>
+
+<!--
+  ══════════════════════════════════════════════════════════════════════
+  SETUP INSTRUCTIONS
+  ══════════════════════════════════════════════════════════════════════
+
+  1. Copy the <style> block → paste in your index.html <head> (or CSS file)
+
+  2. Copy the WIDGET HTML section → paste anywhere in <body>
+
+  3. Copy the <script> block → paste just before </body>
+
+  4. Update SAI_CONFIG:
+     - webhookUrl: 'https://YOUR_N8N_DOMAIN/webhook/chat-intake'
+     - webhookSecret: your X-Webhook-Secret value (must match n8n env var)
+
+  5. Update the Content-Security-Policy in vercel.json:
+     Add your n8n domain to connect-src, e.g.:
+     "connect-src 'self' https://your-n8n-domain.com ..."
+
+  6. Deploy via GitHub → Vercel as usual
+
+  7. Test: open site → chat bubble appears bottom-right → send a message
+     → check n8n execution log → check Supabase conversations table
+
+  ══════════════════════════════════════════════════════════════════════
+-->

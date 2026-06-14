@@ -1,5 +1,5 @@
 # Synergistic AI Solutions — Website Project Memory
-*Last updated: May 2026 | Load this file at the start of every website session*
+*Last updated: June 2026 | Load this file at the start of every website session*
 
 ---
 
@@ -12,14 +12,16 @@
 
 ## Active Working File
 ```
-[Workspace Folder]\website-mobile-test\index.html
+[Workspace Folder]\index.html
 ```
-- **Size**: ~537 KB
-- **Status**: CONFIRMED WORKING in production (May 2026) — iOS Safari ✅ Desktop ✅
-- **Contents**: Full site + all 22 popups + video removed + iOS fixes + Meta Pixel + LinkedIn Tag + favicons + social links + 30s callback popup + Supabase REST API lead capture
+- **Size**: ~560 KB
+- **Status**: CONFIRMED WORKING in production (June 2026) — iOS Safari ✅ Desktop ✅
+- **Contents**: Full SPA + all 22 popups + Meta Pixel (ID: 917824581293540) + LinkedIn Tag + favicons + social links + 30s callback popup + Supabase REST API lead capture + CSP headers + canonical SEO fix
 - **This is the base for all future work.**
 - **GitHub**: https://github.com/VijayDavala/SynergisticAI-Website (branch: `main`)
-- **Production URL**: Deployed via Vercel (auto-deploys on push to `main`)
+- **GitHub PAT**: (stored securely, not in repo)
+- **Git push method**: Always clone fresh to `/tmp`, copy file, commit and push from `/tmp` clone (NTFS lock files prevent direct push from mount)
+- **Production URL**: https://synergisticaisolns.com — deployed via Vercel (auto-deploys on push to `main`)
 
 ## Original Upload (never modify)
 - Path in Linux sandbox: `/sessions/.../uploads/index.html`
@@ -85,21 +87,31 @@
 - Auto-redirects to `/` after 10 seconds
 - Dark space theme matching site brand
 
-### vercel.json ✅ FIXED
-```json
-{
-  "rewrites": [
-    { "source": "/thank-you", "destination": "/thank-you.html" },
-    { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
-  ]
-}
-```
-**Critical**: `/thank-you` route MUST be before the catch-all — the catch-all intercepts any path without a dot.
+### vercel.json ✅ FULLY CONFIGURED (June 2026)
+Located at repo root. Contains:
+1. **www → apex 301 redirect** (www.synergisticaisolns.com → synergisticaisolns.com)
+2. **SPA sub-path 301 redirects** (all route to `/`) — fixes Google "Duplicate canonical" issue:
+   - `/about`, `/contact`, `/careers`, `/services`, `/services/ai-automations`, `/services/digital-marketing`, `/industries`, `/process`
+3. **Rewrites**: `/thank-you` → `thank-you.html`; catch-all `/((?!.*\.).*)`→ `index.html`
+4. **Security headers** on all routes:
+   - `X-Content-Type-Options: nosniff`
+   - `X-Frame-Options: SAMEORIGIN`
+   - `X-XSS-Protection: 1; mode=block`
+   - `Referrer-Policy: strict-origin-when-cross-origin`
+   - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+   - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+   - **`Content-Security-Policy`** (added June 2026): `default-src 'self'` with explicit allowlists for all external resources (Supabase, Meta Pixel, LinkedIn, Google Analytics, Google Fonts, Unsplash)
 
-### Meta Pixel ✅ SHIPPED
-- Pixel ID: `1472196291369040`
-- In `<head>` of `index.html` and `thank-you.html`
-- `fbq('track', 'Lead')` fires on: main form success, popup form success, thank-you page load
+**Critical**: `/thank-you` rewrite MUST be before the catch-all.
+
+### Meta Pixel ✅ SHIPPED (Updated June 2026)
+- **Pixel ID: `917824581293540`** (old ID `1472196291369040` replaced)
+- In `<head>` of `index.html` (~line 2408)
+- **Event tracking:**
+  - `fbq('track', 'PageView')` — fires on every page load
+  - `fbq('track', 'Lead')` — fires on **main contact form** success (`submitLeadForm`) — primary conversion event for Meta Ads optimization
+  - `fbq('track', 'Contact')` — fires on **popup callback form** success (`submitCBForm`) — secondary signal / remarketing
+- In Ads Manager: use **Lead** as campaign conversion event; **Contact** for audience building
 
 ### LinkedIn Insight Tag ✅ SHIPPED
 - Partner ID: `9270068`
@@ -112,12 +124,12 @@
 - Linked in `<head>` of `index.html` and `thank-you.html`
 
 ### Social Media Links ✅ SHIPPED
-Order in footer: LinkedIn → Instagram → Facebook → YouTube → X
-- LinkedIn: https://www.linkedin.com/company/synergistic-ai-solutions
-- Instagram: https://www.instagram.com/synergistic_ai_solutions/
-- Facebook: https://www.facebook.com/profile.php?id=61575870813809
-- YouTube: `href="#"` (placeholder — URL not yet provided)
-- X: `href="#"` (placeholder — URL not yet provided)
+Order in footer: Instagram → Facebook → LinkedIn → YouTube → X (Twitter)
+- Instagram: https://www.instagram.com/synergisticai_digitalsolutions/
+- Facebook: https://www.facebook.com/SynergisticAIDigitalsolutions
+- LinkedIn: https://www.linkedin.com/company/synergistic-ai-digital-solutions/
+- YouTube: https://www.youtube.com/@synergisticaidigitalsolutions
+- X (Twitter): https://x.com/AiSynergistic
 
 ### SEO H1/H2 Fix ✅ SHIPPED
 - Site had 4× `<h1>` tags — reduced to 1× `<h1>` + 3× `<h2>` for correct heading hierarchy
@@ -138,13 +150,21 @@ Order in footer: LinkedIn → Instagram → Facebook → YouTube → X
 
 ## Pending Work
 
-### ⚠️ YouTube & X Social Links
-- Both currently have `href="#"` placeholders
-- Provide URLs when ready to update
-
 ### ⚠️ Bot Protection (Optional)
 - hCaptcha was removed because it required a paid plan
 - Consider Cloudflare Turnstile (free forever) as a future replacement
+
+### ⚠️ Google Search Console — Action Required
+- Request re-indexing in GSC for these URLs (URL Inspection → Request Indexing):
+  - `https://synergisticaisolns.com/about`
+  - `https://synergisticaisolns.com/contact`
+  - `https://synergisticaisolns.com/careers`
+  - `https://synergisticaisolns.com/process`
+  - `https://synergisticaisolns.com/services`
+  - `https://synergisticaisolns.com/services/ai-automations`
+  - `https://synergisticaisolns.com/services/digital-marketing`
+- Also resubmit sitemap: https://synergisticaisolns.com/sitemap.xml
+- Issues should clear within 1–2 weeks after Google re-crawls
 
 ---
 
@@ -212,9 +232,12 @@ checks = {
 | 6–7 | iOS full fix (touch guard, backdrop-filter, hamburger touchend), footer fix, cursor fix, hCaptcha — shipped |
 | 8–9 | Removed hCaptcha, added email OTP (Resend) then removed OTP; H1→H2 SEO fix; Meta Pixel; LinkedIn tag; favicons; social links; vercel.json fix for /thank-you; thank-you page created |
 | 10 | 30s callback popup (CSS+JS dual trigger, sessionStorage suppression); Supabase REST API for both forms; fixed payload + auth headers; fixed company NOT NULL constraint; all confirmed working ✅ |
+| 11 | Footer: multiple redesign iterations → final single-bar layout; CRM form removed; popup timing set (30s first, 2min re-trigger); logo click fixed (removed empty modal); popup left panel replaced logo with Unsplash meeting photo; social links fully updated (Instagram/Facebook/LinkedIn/YouTube/X with real URLs); All Services + Free Consultation buttons redirected to Supabase form |
+| 12 | Meta Pixel replaced (old ID 1472196291369040 → new ID 917824581293540); Meta Pixel event tracking added: `Lead` on contact form submit, `Contact` on popup form submit; Conversions API Gateway — decided to skip for now; sitemap simplified to homepage + thank-you only; vercel.json: added 301 redirects for all SPA sub-paths (fixes Google "Duplicate canonical" + "Discovered not indexed" GSC errors); Content-Security-Policy header added covering all external resources |
 
 ## Start of Next Session
 1. Read this file first
-2. Working file: `website-mobile-test/index.html`
-3. Site is fully production-ready — all forms save to Supabase, analytics firing correctly
-4. Only pending items: YouTube/X social links, optional bot protection
+2. **Working file**: `[Workspace Folder]\index.html` (root of workspace folder — NOT website-mobile-test subfolder)
+3. **Git push method**: Clone fresh to `/tmp`, copy file, commit & push from `/tmp` (never push directly from mount due to NTFS lock files)
+4. Site is fully production-ready — all forms save to Supabase, analytics + Meta Pixel firing correctly
+5. Pending: GSC re-indexing requests (see Pending Work above), optional bot protection

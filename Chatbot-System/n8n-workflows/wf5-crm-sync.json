@@ -1,0 +1,367 @@
+{
+  "name": "WF5 — CRM Sync (HubSpot)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a5b2c3d4-0005-0005-0005-000000000001",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data from WF3 qualification payload\nconst input = $input.first().json;\n\n// Map lead category to HubSpot lifecycle stage\nconst lifecycleMap = { hot: 'salesqualifiedlead', warm: 'marketingqualifiedlead', cold: 'lead' };\nconst lifecycle = lifecycleMap[input.lead_category] || 'lead';\n\nreturn [{\n  json: {\n    ...input,\n    lifecycle_stage: lifecycle,\n    full_name: `${input.first_name || ''} ${input.last_name || ''}`.trim() || 'Unknown'\n  }\n}];"
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000002",
+      "name": "Prepare CRM Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.HUBSPOT_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "filterGroups": [{
+            "filters": [{
+              "propertyName": "email",
+              "operator": "EQ",
+              "value": "={{ $json.business_email }}"
+            }]
+          }],
+          "properties": ["firstname", "lastname", "email", "phone", "company", "lifecyclestage"],
+          "limit": 1
+        },
+        "options": {}
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000003",
+      "name": "HubSpot — Search Contact by Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "contact-exists",
+              "leftValue": "={{ $json.total }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000004",
+      "name": "Contact Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.hubapi.com/crm/v3/objects/contacts/{{ $json.results[0].id }}",
+        "method": "PATCH",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.HUBSPOT_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "properties": {
+            "lifecyclestage": "={{ $('Prepare CRM Payload').first().json.lifecycle_stage }}",
+            "company": "={{ $('Prepare CRM Payload').first().json.company }}",
+            "phone": "={{ $('Prepare CRM Payload').first().json.phone_number }}",
+            "website": "={{ $('Prepare CRM Payload').first().json.company_website }}",
+            "industry": "={{ $('Prepare CRM Payload').first().json.industry }}",
+            "numemployees": "={{ $('Prepare CRM Payload').first().json.employee_count }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000005",
+      "name": "HubSpot — Update Existing Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 160]
+    },
+    {
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.HUBSPOT_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "properties": {
+            "firstname": "={{ $('Prepare CRM Payload').first().json.first_name || 'Unknown' }}",
+            "lastname": "={{ $('Prepare CRM Payload').first().json.last_name || '' }}",
+            "email": "={{ $('Prepare CRM Payload').first().json.business_email }}",
+            "phone": "={{ $('Prepare CRM Payload').first().json.phone_number }}",
+            "company": "={{ $('Prepare CRM Payload').first().json.company }}",
+            "website": "={{ $('Prepare CRM Payload').first().json.company_website }}",
+            "industry": "={{ $('Prepare CRM Payload').first().json.industry }}",
+            "numemployees": "={{ $('Prepare CRM Payload').first().json.employee_count }}",
+            "lifecyclestage": "={{ $('Prepare CRM Payload').first().json.lifecycle_stage }}",
+            "hs_lead_status": "NEW"
+          }
+        },
+        "options": {}
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000006",
+      "name": "HubSpot — Create New Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 440]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge contact ID from either update or create path\nconst updateResult = $('HubSpot — Update Existing Contact').first()?.json;\nconst createResult = $('HubSpot — Create New Contact').first()?.json;\nconst qual = $('Prepare CRM Payload').first().json;\n\nconst contactId = updateResult?.id || createResult?.id;\n\nreturn [{\n  json: {\n    ...qual,\n    hubspot_contact_id: contactId\n  }\n}];"
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000007",
+      "name": "Merge Contact ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/deals",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.HUBSPOT_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "properties": {
+            "dealname": "={{ $json.full_name + ' — ' + ($json.service_interest || 'AI Services') + ' (' + new Date().toLocaleDateString() + ')' }}",
+            "pipeline": "default",
+            "dealstage": "={{ $json.lead_category === 'hot' ? 'qualifiedtobuy' : ($json.lead_category === 'warm' ? 'appointmentscheduled' : 'contractsent') }}",
+            "amount": "={{ $json.monthly_budget?.includes('10k') || $json.monthly_budget?.includes('10,000') ? '120000' : ($json.monthly_budget?.includes('5k') ? '60000' : '12000') }}",
+            "closedate": "={{ new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}",
+            "description": "=Lead Source: AI Chatbot\\nService Interest: {{ $json.service_interest }}\\nBusiness Challenge: {{ $json.business_challenge }}\\nBudget: {{ $json.monthly_budget }}\\nUrgency: {{ $json.urgency }}\\nLead Score: {{ $json.lead_score }}/100\\nCategory: {{ $json.lead_category?.toUpperCase() }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000008",
+      "name": "HubSpot — Create Deal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.hubapi.com/crm/v3/objects/notes",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.HUBSPOT_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "properties": {
+            "hs_note_body": "=CHATBOT CONVERSATION SUMMARY\\n\\nLead Score: {{ $('Merge Contact ID').first().json.lead_score }}/100 ({{ $('Merge Contact ID').first().json.lead_category?.toUpperCase() }})\\nSession ID: {{ $('Merge Contact ID').first().json.session_id }}\\n\\nKey Details:\\n- Industry: {{ $('Merge Contact ID').first().json.industry }}\\n- Employees: {{ $('Merge Contact ID').first().json.employee_count }}\\n- Budget: {{ $('Merge Contact ID').first().json.monthly_budget }}\\n- Decision Maker: {{ $('Merge Contact ID').first().json.decision_maker }}\\n- Urgency: {{ $('Merge Contact ID').first().json.urgency }}\\n- Service Interest: {{ $('Merge Contact ID').first().json.service_interest }}\\n\\nBusiness Challenge:\\n{{ $('Merge Contact ID').first().json.business_challenge }}",
+            "hs_timestamp": "={{ Date.now() }}"
+          },
+          "associations": [{
+            "to": { "id": "={{ $('Merge Contact ID').first().json.hubspot_contact_id }}" },
+            "types": [{ "associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 202 }]
+          }]
+        },
+        "options": {}
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000009",
+      "name": "HubSpot — Create Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 160]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.hubapi.com/crm/v3/associations/contacts/deals/batch/create",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.HUBSPOT_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "inputs": [{
+            "from": { "id": "={{ $('Merge Contact ID').first().json.hubspot_contact_id }}" },
+            "to": { "id": "={{ $('HubSpot — Create Deal').first().json.id }}" },
+            "type": "contact_to_deal"
+          }]
+        },
+        "options": {}
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000010",
+      "name": "HubSpot — Associate Contact to Deal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 440]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/lead_qualifications",
+        "method": "PATCH",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "session_id", "value": "=eq.{{ $('Merge Contact ID').first().json.session_id }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "hubspot_contact_id": "={{ $('Merge Contact ID').first().json.hubspot_contact_id }}",
+          "hubspot_deal_id": "={{ $('HubSpot — Create Deal').first().json.id }}"
+        },
+        "options": {}
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000011",
+      "name": "Supabase — Save HubSpot IDs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": { "__rl": true, "mode": "id", "value": "WF6_NOTIFICATIONS_ID" },
+        "options": { "waitForSubWorkflow": false }
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000012",
+      "name": "Trigger WF6 — Notifications",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [2220, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": { "__rl": true, "mode": "id", "value": "WF7_FOLLOWUP_ID" },
+        "options": { "waitForSubWorkflow": false }
+      },
+      "id": "a5b2c3d4-0005-0005-0005-000000000013",
+      "name": "Trigger WF7 — Follow-up Enrollment",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [2220, 460]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [[{ "node": "Prepare CRM Payload", "type": "main", "index": 0 }]]
+    },
+    "Prepare CRM Payload": {
+      "main": [[{ "node": "HubSpot — Search Contact by Email", "type": "main", "index": 0 }]]
+    },
+    "HubSpot — Search Contact by Email": {
+      "main": [[{ "node": "Contact Exists?", "type": "main", "index": 0 }]]
+    },
+    "Contact Exists?": {
+      "main": [
+        [{ "node": "HubSpot — Update Existing Contact", "type": "main", "index": 0 }],
+        [{ "node": "HubSpot — Create New Contact", "type": "main", "index": 0 }]
+      ]
+    },
+    "HubSpot — Update Existing Contact": {
+      "main": [[{ "node": "Merge Contact ID", "type": "main", "index": 0 }]]
+    },
+    "HubSpot — Create New Contact": {
+      "main": [[{ "node": "Merge Contact ID", "type": "main", "index": 0 }]]
+    },
+    "Merge Contact ID": {
+      "main": [[{ "node": "HubSpot — Create Deal", "type": "main", "index": 0 }]]
+    },
+    "HubSpot — Create Deal": {
+      "main": [[
+        { "node": "HubSpot — Create Note", "type": "main", "index": 0 },
+        { "node": "HubSpot — Associate Contact to Deal", "type": "main", "index": 0 }
+      ]]
+    },
+    "HubSpot — Associate Contact to Deal": {
+      "main": [[{ "node": "Supabase — Save HubSpot IDs", "type": "main", "index": 0 }]]
+    },
+    "Supabase — Save HubSpot IDs": {
+      "main": [[
+        { "node": "Trigger WF6 — Notifications", "type": "main", "index": 0 },
+        { "node": "Trigger WF7 — Follow-up Enrollment", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "WF_ERROR_HANDLER_ID"
+  },
+  "meta": {
+    "description": "Creates/updates HubSpot contact, creates deal with lead score, logs conversation note, associates contact to deal, triggers notifications and follow-up."
+  },
+  "tags": [{ "name": "chatbot" }, { "name": "crm" }, { "name": "hubspot" }],
+  "_setupNotes": {
+    "HUBSPOT_ACCESS_TOKEN": "Create a Private App in HubSpot → Settings → Integrations → Private Apps. Scopes: crm.objects.contacts.write, crm.objects.deals.write, crm.objects.notes.write",
+    "WF6_NOTIFICATIONS_ID": "Replace with actual WF6 workflow ID after importing",
+    "WF7_FOLLOWUP_ID": "Replace with actual WF7 workflow ID after importing",
+    "PIPELINE": "Update 'pipeline' field to match your HubSpot pipeline ID. Get it from HubSpot → Settings → CRM → Pipelines"
+  }
+}

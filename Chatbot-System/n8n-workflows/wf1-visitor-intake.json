@@ -1,0 +1,276 @@
+{
+  "name": "WF1 — Website Visitor Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat-intake",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Webhook — Chat Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "chat-intake-synergistic-ai"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate and sanitise incoming payload\nconst body = $input.first().json.body || $input.first().json;\n\nconst message = (body.message || '').replace(/<[^>]*>/g, '').slice(0, 2000).trim();\nconst visitorId = body.visitor_id || 'anon_' + Date.now();\nconst sessionId = body.session_id || null;\nconst pageUrl = body.page_url || '';\nconst utmSource = body.utm_source || '';\nconst utmMedium = body.utm_medium || '';\nconst utmCampaign = body.utm_campaign || '';\n\nif (!message) {\n  throw new Error('Empty message received');\n}\n\nreturn [{\n  json: {\n    message,\n    visitor_id: visitorId,\n    session_id: sessionId,\n    page_url: pageUrl,\n    utm_source: utmSource,\n    utm_medium: utmMedium,\n    utm_campaign: utmCampaign,\n    received_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000002",
+      "name": "Sanitise Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/sessions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "visitor_id", "value": "=eq.{{ $json.visitor_id }}" },
+            { "name": "order", "value": "last_activity.desc" },
+            { "name": "limit", "value": "1" },
+            { "name": "select", "value": "id,visitor_id,started_at,last_activity,status" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000003",
+      "name": "Supabase — Find Existing Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "check-session",
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000004",
+      "name": "Session Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/sessions",
+        "method": "PATCH",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "id", "value": "=eq.{{ $('Supabase — Find Existing Session').first().json[0].id }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "last_activity": "={{ new Date().toISOString() }}"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000005",
+      "name": "Update Session Timestamp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 160]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/sessions",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "visitor_id": "={{ $('Sanitise Input').first().json.visitor_id }}",
+          "page_url": "={{ $('Sanitise Input').first().json.page_url }}",
+          "utm_source": "={{ $('Sanitise Input').first().json.utm_source }}",
+          "utm_medium": "={{ $('Sanitise Input').first().json.utm_medium }}",
+          "utm_campaign": "={{ $('Sanitise Input').first().json.utm_campaign }}",
+          "status": "active",
+          "is_returning": false
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000006",
+      "name": "Create New Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 440]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/conversations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "session_id", "value": "=eq.{{ $('Update Session Timestamp').first().json[0]?.id || $('Create New Session').first().json[0]?.id }}" },
+            { "name": "order", "value": "created_at.desc" },
+            { "name": "limit", "value": "10" },
+            { "name": "select", "value": "role,content" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000007",
+      "name": "Fetch Conversation History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sanitised = $('Sanitise Input').first().json;\nconst sessionRows = $('Update Session Timestamp').first().json;\nconst newSessionRows = $('Create New Session').first().json;\nconst historyRows = $input.first().json;\n\nconst sessionId = (sessionRows && sessionRows[0]?.id) || (newSessionRows && newSessionRows[0]?.id);\nconst history = Array.isArray(historyRows) ? historyRows.reverse() : [];\n\nreturn [{\n  json: {\n    session_id: sessionId,\n    visitor_id: sanitised.visitor_id,\n    message: sanitised.message,\n    conversation_history: history,\n    is_returning: !!(sessionRows && sessionRows[0]),\n    page_url: sanitised.page_url\n  }\n}];"
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000008",
+      "name": "Assemble Context Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": { "__rl": true, "mode": "id", "value": "WF2_AI_RESPONSE_ENGINE_ID" },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000009",
+      "name": "Execute WF2 — AI Response Engine",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ reply: $json.reply, session_id: $json.session_id, intent: $json.intent, confidence: $json.confidence, next_action: $json.next_action }) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "https://synergisticaisolns.com" },
+              { "name": "Content-Type", "value": "application/json" }
+            ]
+          }
+        }
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000010",
+      "name": "Respond to Chat Widget",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2000, 300]
+    }
+  ],
+  "connections": {
+    "Webhook — Chat Intake": {
+      "main": [[{ "node": "Sanitise Input", "type": "main", "index": 0 }]]
+    },
+    "Sanitise Input": {
+      "main": [[{ "node": "Supabase — Find Existing Session", "type": "main", "index": 0 }]]
+    },
+    "Supabase — Find Existing Session": {
+      "main": [[{ "node": "Session Exists?", "type": "main", "index": 0 }]]
+    },
+    "Session Exists?": {
+      "main": [
+        [{ "node": "Update Session Timestamp", "type": "main", "index": 0 }],
+        [{ "node": "Create New Session", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Session Timestamp": {
+      "main": [[{ "node": "Fetch Conversation History", "type": "main", "index": 0 }]]
+    },
+    "Create New Session": {
+      "main": [[{ "node": "Fetch Conversation History", "type": "main", "index": 0 }]]
+    },
+    "Fetch Conversation History": {
+      "main": [[{ "node": "Assemble Context Payload", "type": "main", "index": 0 }]]
+    },
+    "Assemble Context Payload": {
+      "main": [[{ "node": "Execute WF2 — AI Response Engine", "type": "main", "index": 0 }]]
+    },
+    "Execute WF2 — AI Response Engine": {
+      "main": [[{ "node": "Respond to Chat Widget", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "WF_ERROR_HANDLER_ID"
+  },
+  "meta": {
+    "description": "Entry point for all chat messages. Manages sessions, identifies returning visitors, routes to AI engine.",
+    "instanceId": "synergistic-ai-chatbot"
+  },
+  "tags": [
+    { "name": "chatbot" },
+    { "name": "visitor-intake" }
+  ],
+  "_setupNotes": {
+    "SUPABASE_URL": "Set in n8n Environment Variables — e.g. https://pduemybwotfrtznpvyii.supabase.co",
+    "SUPABASE_SERVICE_KEY": "Set in n8n Environment Variables — use service_role key (not anon)",
+    "WF2_AI_RESPONSE_ENGINE_ID": "Replace with the actual n8n workflow ID of WF2 after importing it",
+    "WF_ERROR_HANDLER_ID": "Replace with error handler workflow ID",
+    "webhookUrl": "Your webhook URL will be: https://YOUR_N8N_DOMAIN/webhook/chat-intake"
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "name": "WF4 — Appointment Booking",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a4b2c3d4-0004-0004-0004-000000000001",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.OPENAI_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "gpt-4o",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a date/time parser. Extract the requested appointment date and time from the user's message. Today is {{ new Date().toISOString().split('T')[0] }}. Return ONLY valid JSON: { \"parsed_datetime\": \"ISO8601 datetime or null\", \"is_flexible\": true/false, \"preference_text\": \"user's preference in plain English\" }"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.preferred_time_text || $json.message || 'next available slot' }}"
+            }
+          ],
+          "temperature": 0.1,
+          "max_tokens": 200,
+          "response_format": { "type": "json_object" }
+        },
+        "options": {}
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000002",
+      "name": "OpenAI — Parse Date/Time",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const gptResp = $input.first().json;\nconst ctx = $('Start').first().json;\n\nlet parsed;\ntry {\n  parsed = JSON.parse(gptResp.choices[0].message.content);\n} catch(e) {\n  parsed = { parsed_datetime: null, is_flexible: true, preference_text: 'next available slot' };\n}\n\n// If no specific time given, default to next 7 days window\nconst now = new Date();\nconst startTime = parsed.parsed_datetime\n  ? new Date(parsed.parsed_datetime).toISOString()\n  : now.toISOString();\nconst endTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();\n\nreturn [{\n  json: {\n    session_id: ctx.session_id,\n    lead_id: ctx.lead_id,\n    visitor_name: ctx.visitor_name || '',\n    visitor_email: ctx.visitor_email || '',\n    start_time: startTime,\n    end_time: endTime,\n    preference_text: parsed.preference_text || 'flexible'\n  }\n}];"
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000003",
+      "name": "Prepare Calendly Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.calendly.com/event_types",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.CALENDLY_API_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "user", "value": "={{ $env.CALENDLY_USER_URI }}" },
+            { "name": "active", "value": "true" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000004",
+      "name": "Calendly — Get Event Types",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Find the consultation event type (first active one)\nconst eventTypes = $input.first().json;\nconst ctx = $('Prepare Calendly Request').first().json;\n\nconst consultationEvent = eventTypes.collection?.find(e =>\n  e.name.toLowerCase().includes('consultation') ||\n  e.name.toLowerCase().includes('strategy') ||\n  e.name.toLowerCase().includes('free')\n) || eventTypes.collection?.[0];\n\nif (!consultationEvent) {\n  throw new Error('No active Calendly event types found. Please create a consultation event in Calendly.');\n}\n\nreturn [{\n  json: {\n    ...ctx,\n    event_type_uri: consultationEvent.uri,\n    event_type_slug: consultationEvent.slug,\n    event_name: consultationEvent.name,\n    duration_mins: consultationEvent.duration\n  }\n}];"
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000005",
+      "name": "Extract Event Type URI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.calendly.com/event_type_available_times",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.CALENDLY_API_TOKEN }}" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "event_type", "value": "={{ $json.event_type_uri }}" },
+            { "name": "start_time", "value": "={{ $json.start_time }}" },
+            { "name": "end_time", "value": "={{ $json.end_time }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000006",
+      "name": "Calendly — Get Available Slots",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const availability = $input.first().json;\nconst ctx = $('Extract Event Type URI').first().json;\n\n// Get top 3 available slots\nconst slots = availability.collection?.slice(0, 3) || [];\n\nif (slots.length === 0) {\n  return [{\n    json: {\n      ...ctx,\n      slots_text: \"No available slots found in the requested timeframe. Please visit \" + $env.CALENDLY_BOOKING_URL + \" to book directly.\",\n      has_slots: false,\n      booking_url: process.env.CALENDLY_BOOKING_URL || 'https://calendly.com/synergistic-ai'\n    }\n  }];\n}\n\n// Format slots for human-readable display\nconst formatSlot = (slotStr) => {\n  const d = new Date(slotStr);\n  return d.toLocaleString('en-US', {\n    weekday: 'long', month: 'short', day: 'numeric',\n    hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York'\n  }) + ' ET';\n};\n\nconst slotsText = slots.map((s, i) => `${i+1}. ${formatSlot(s.start_time)}`).join('\\n');\nconst slotISOs = slots.map(s => s.start_time);\n\nreturn [{\n  json: {\n    ...ctx,\n    slots_text: slotsText,\n    slot_isos: slotISOs,\n    has_slots: true,\n    booking_url: process.env.CALENDLY_BOOKING_URL || 'https://calendly.com/synergistic-ai'\n  }\n}];"
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000007",
+      "name": "Format Available Slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.calendly.com/scheduling_links",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.CALENDLY_API_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "max_event_count": 1,
+          "owner": "={{ $json.event_type_uri }}",
+          "owner_type": "EventType"
+        },
+        "options": {}
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000008",
+      "name": "Calendly — Create One-Time Booking Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 160]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/appointments",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "session_id": "={{ $('Format Available Slots').first().json.session_id }}",
+          "lead_id": "={{ $('Format Available Slots').first().json.lead_id }}",
+          "status": "scheduling",
+          "duration_mins": "={{ $('Format Available Slots').first().json.duration_mins || 30 }}",
+          "meeting_link": "={{ $input.first().json.booking_url }}"
+        },
+        "options": {}
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000009",
+      "name": "Supabase — Save Appointment Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "hello@synergisticaisolns.com",
+        "toEmail": "={{ $('Format Available Slots').first().json.visitor_email }}",
+        "subject": "Your Free Strategy Session — Synergistic AI Solutions",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style=\"font-family:Arial,sans-serif;color:#333;max-width:600px;margin:0 auto;\">\n<h2 style=\"color:#1E3A5F;\">Your Free Strategy Session is Ready! 🚀</h2>\n<p>Hi {{ $('Format Available Slots').first().json.visitor_name || 'there' }},</p>\n<p>Thank you for your interest in Synergistic AI Solutions! We're excited to learn more about your business and explore how we can help.</p>\n<h3 style=\"color:#00A8E8;\">Book Your Free 30-Minute Consultation</h3>\n<p>Click the button below to choose a time that works for you:</p>\n<div style=\"text-align:center;margin:30px 0;\">\n<a href=\"{{ $('Calendly — Create One-Time Booking Link').first().json.booking_url }}\" style=\"background:#1E3A5F;color:#fff;padding:16px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;\">Book My Free Session →</a>\n</div>\n<p>Or if you prefer, here are some available times:</p>\n<pre style=\"background:#f5f5f5;padding:16px;border-radius:6px;\">{{ $('Format Available Slots').first().json.slots_text }}</pre>\n<p>In our call, we'll discuss:<br>✅ Your current business challenges<br>✅ Which AI automation services fit your needs<br>✅ A tailored roadmap for your business<br>✅ Investment and timeline estimates</p>\n<p>Looking forward to speaking with you!</p>\n<p style=\"color:#666;\">— The Synergistic AI Team<br><a href=\"https://synergisticaisolns.com\">synergisticaisolns.com</a></p>\n</body></html>",
+        "options": {}
+      },
+      "id": "a4b2c3d4-0004-0004-0004-000000000010",
+      "name": "Send Booking Confirmation Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [2220, 300],
+      "credentials": {
+        "smtp": { "id": "SMTP_CREDENTIAL_ID", "name": "SMTP Account" }
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [[{ "node": "OpenAI — Parse Date/Time", "type": "main", "index": 0 }]]
+    },
+    "OpenAI — Parse Date/Time": {
+      "main": [[{ "node": "Prepare Calendly Request", "type": "main", "index": 0 }]]
+    },
+    "Prepare Calendly Request": {
+      "main": [[{ "node": "Calendly — Get Event Types", "type": "main", "index": 0 }]]
+    },
+    "Calendly — Get Event Types": {
+      "main": [[{ "node": "Extract Event Type URI", "type": "main", "index": 0 }]]
+    },
+    "Extract Event Type URI": {
+      "main": [[{ "node": "Calendly — Get Available Slots", "type": "main", "index": 0 }]]
+    },
+    "Calendly — Get Available Slots": {
+      "main": [[{ "node": "Format Available Slots", "type": "main", "index": 0 }]]
+    },
+    "Format Available Slots": {
+      "main": [[
+        { "node": "Calendly — Create One-Time Booking Link", "type": "main", "index": 0 },
+        { "node": "Supabase — Save Appointment Record", "type": "main", "index": 0 }
+      ]]
+    },
+    "Supabase — Save Appointment Record": {
+      "main": [[{ "node": "Send Booking Confirmation Email", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "WF_ERROR_HANDLER_ID"
+  },
+  "meta": {
+    "description": "Parses visitor's preferred time, checks Calendly availability, creates one-time booking link, saves appointment to Supabase, sends confirmation email."
+  },
+  "tags": [{ "name": "chatbot" }, { "name": "appointment-booking" }],
+  "_setupNotes": {
+    "CALENDLY_API_TOKEN": "Get from Calendly → Integrations → API → Personal Access Tokens",
+    "CALENDLY_USER_URI": "Your Calendly user URI — get from GET https://api.calendly.com/users/me after auth",
+    "CALENDLY_BOOKING_URL": "Your Calendly profile URL e.g. https://calendly.com/your-handle",
+    "SMTP_CREDENTIAL_ID": "Set up SMTP credential in n8n Credentials. Use SendGrid or Gmail SMTP.",
+    "SENDER_EMAIL": "Update fromEmail to match your verified sending domain"
+  }
+}
