@@ -66,6 +66,10 @@
       "destination": "/terms-of-service.html"
     },
     {
+      "source": "/digital-marketing/:page",
+      "destination": "/digital-marketing/:page.html"
+    },
+    {
       "source": "/((?!.*\\.).*)",
       "destination": "/index.html"
     }
