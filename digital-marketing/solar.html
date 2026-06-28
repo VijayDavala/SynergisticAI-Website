@@ -21,8 +21,10 @@ body{background:var(--teal-deep);color:var(--white);font-family:'Rajdhani',sans-
 a{color:var(--teal-bright);text-decoration:none;}
 img{max-width:100%;display:block;}
 .lp-nav{background:rgba(10,26,46,.97);border-bottom:1px solid rgba(0,212,212,.2);padding:14px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.lp-logo-text{font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--white);letter-spacing:2px;line-height:1.2;}
-.lp-logo-text span{color:var(--teal-bright);display:block;font-size:.75rem;letter-spacing:4px;}
+.lp-logo-wrap{display:flex;align-items:center;gap:14px;text-decoration:none;}
+.lp-logo-img{width:54px;height:54px;border-radius:50%;border:2px solid var(--teal-bright);box-shadow:0 0 18px rgba(0,212,212,0.8),0 0 36px rgba(0,212,212,0.35);object-fit:cover;flex-shrink:0;}
+.lp-logo-text{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;color:#ffffff;letter-spacing:3px;line-height:1.15;text-shadow:0 0 18px rgba(255,255,255,0.5),0 2px 8px rgba(0,0,0,0.7);}
+.lp-logo-text span{color:var(--teal-bright);display:block;font-size:.72rem;font-weight:700;letter-spacing:6px;text-shadow:0 0 16px rgba(0,212,212,1),0 0 28px rgba(0,212,212,0.65);margin-top:3px;}
 .lp-breadcrumb{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text-muted);}
 .lp-breadcrumb a{color:var(--text-muted);}
 .lp-breadcrumb a:hover{color:var(--teal-bright);}
@@ -148,7 +150,7 @@ img{max-width:100%;display:block;}
 </head>
 <body>
 <nav class="lp-nav">
-  <a href="/" style="text-decoration:none;"><div class="lp-logo-text">SYNERGISTIC AI<span>SOLUTIONS</span></div></a>
+  <a href="/" class="lp-logo-wrap"><img src="/logo.jpg" alt="Synergistic AI Solutions" class="lp-logo-img"/><div class="lp-logo-text">SYNERGISTIC AI<span>SOLUTIONS</span></div></a>
   <div class="lp-breadcrumb"><a href="/">Home</a> › <a href="/#digital-marketing">Digital Marketing</a> › <span>Solar</span></div>
   <a class="lp-nav-cta" href="#contact">Get Free Audit</a>
 </nav>

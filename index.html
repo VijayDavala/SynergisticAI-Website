@@ -2241,7 +2241,7 @@
         transition: max-height 0.4s ease;
         margin-left: 0;
       }
-      .nav-links.open { max-height: 500px; }
+      .nav-links.open { max-height: calc(100dvh - 70px); overflow-y: auto; }
       .nav-link { height: auto; padding: 16px 24px; width: 100%; }
       .dropdown {
         position: static;
@@ -2641,7 +2641,8 @@ nav { position: relative; z-index: 9999; }
     pointer-events: none;
   }
   .nav-links.open {
-    max-height: 600px !important;
+    max-height: calc(100dvh - 70px) !important;
+    overflow-y: auto;
     pointer-events: auto;
   }
 
