@@ -145,6 +145,7 @@ img{max-width:100%;display:block;}
 .form-field textarea{resize:vertical;min-height:100px;}
 .phone-field-wrap{display:flex;gap:8px;}
 .phone-code{flex:0 0 130px;background:rgba(255,255,255,.04);border:1px solid rgba(0,212,212,.2);border-radius:4px;padding:12px 10px;color:var(--white);font-family:'Rajdhani',sans-serif;}
+.phone-code-custom{flex:0 0 90px;background:rgba(255,255,255,.04);border:1px solid rgba(0,212,212,.2);border-radius:4px;padding:12px 10px;color:var(--white);font-family:'Rajdhani',sans-serif;font-size:1rem;}
 .phone-number{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(0,212,212,.2);border-radius:4px;padding:12px 14px;color:var(--white);font-family:'Rajdhani',sans-serif;}
 .form-submit{background:var(--teal-bright);color:var(--teal-deep);font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;padding:15px 32px;border-radius:4px;border:none;cursor:pointer;letter-spacing:1px;transition:var(--transition);width:100%;margin-top:6px;}
 .form-submit:hover{background:var(--teal-glow);}
@@ -382,13 +383,15 @@ img{max-width:100%;display:block;}
     <div class="form-field">
       <label for="phone-number">Phone Number</label>
       <div class="phone-field-wrap">
-        <select id="phone-code" name="phoneCode" class="phone-code" aria-label="Country code">
-          <option value="+1" selected>🇺🇸 +1</option>
-          <option value="+91">🇮🇳 +91</option>
-          <option value="+971">🇦🇪 +971</option>
-          <option value="+61">🇦🇺 +61</option>
-          <option value="+44">🇬🇧 +44</option>
+        <select id="phone-code" name="phoneCode" class="phone-code" aria-label="Country code" onchange="toggleCustomCode(this)">
+          <option value="+1" selected>United States +1</option>
+          <option value="+91">India +91</option>
+          <option value="+971">UAE +971</option>
+          <option value="+61">Australia +61</option>
+          <option value="+44">United Kingdom +44</option>
+          <option value="other">Other</option>
         </select>
+        <input type="text" id="phone-code-custom" class="phone-code-custom" placeholder="+__ code" maxlength="6" style="display:none;"/>
         <input type="tel" id="phone-number" name="phoneNumber" class="phone-number" placeholder="(555) 000-0000" autocomplete="tel-national"/>
       </div>
       <span class="form-error-msg" id="err-phone-number">A valid phone number is required.</span>
@@ -425,12 +428,15 @@ img{max-width:100%;display:block;}
 var _SURL='https://pduemybwotfrtznpvyii.supabase.co/rest/v1/leads';
 var _SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg';
 
+function toggleCustomCode(sel){var c=document.getElementById('phone-code-custom');if(!c)return;c.style.display=sel.value==='other'?'inline-block':'none';if(sel.value==='other')c.focus();}
 function submitLeadForm(){
   var fn=(document.getElementById('fname')?.value||'').trim();
   var ln=(document.getElementById('lname')?.value||'').trim();
   var em=(document.getElementById('email')?.value||'').trim();
   var co=(document.getElementById('company')?.value||'').trim();
   var pc=(document.getElementById('phone-code')?.value||'+1');
+  var pcc=(document.getElementById('phone-code-custom')?.value||'').trim();
+  var cc=pc==='other'?pcc:pc;
   var pn=(document.getElementById('phone-number')?.value||'').trim();
   var sv=(document.getElementById('service')?.value||'');
   var msg=(document.getElementById('message')?.value||'').trim();
@@ -442,11 +448,12 @@ function submitLeadForm(){
   if(!emailRx.test(em))errs.push('A valid business email is required.');
   if(!co)errs.push('Company name is required.');
   if(digits.length<6)errs.push('A valid phone number is required.');
+  if(pc==='other'&&!pcc)errs.push('Please enter your country code.');
   if(!sv)errs.push('Please select a service.');
   if(errs.length>0){showFormMsg(errs.join('<br>'),'error');return;}
   var btn=document.getElementById('leadSubmitBtn');
   if(btn){btn.disabled=true;btn.textContent='Submitting…';}
-  var payload=JSON.stringify({first_name:fn,last_name:ln,business_email:em,company:co,phone_country_code:pc,phone_number:digits||pn,service_of_interest:sv,message:msg,source:'med-spa-landing-page',status:'new'});
+  var payload=JSON.stringify({first_name:fn,last_name:ln,business_email:em,company:co,phone_country_code:cc,phone_number:digits||pn,service_of_interest:sv,message:msg,source:'med-spa-landing-page',status:'new'});
   var xhr=new XMLHttpRequest();
   xhr.open('POST',_SURL,true);
   xhr.setRequestHeader('apikey',_SKEY);

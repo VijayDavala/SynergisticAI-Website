@@ -102,6 +102,7 @@ a{color:var(--teal-bright);text-decoration:none;}img{max-width:100%;display:bloc
 .phone-field-wrap{display:flex;gap:8px;}
 .phone-code{flex:0 0 130px;background:rgba(255,255,255,.04);border:1px solid rgba(0,212,212,.2);border-radius:4px;padding:12px 10px;color:var(--white);font-family:'Rajdhani',sans-serif;}
 .phone-number{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(0,212,212,.2);border-radius:4px;padding:12px 14px;color:var(--white);font-family:'Rajdhani',sans-serif;}
+.phone-code-custom{flex:0 0 90px;background:rgba(255,255,255,.04);border:1px solid rgba(0,212,212,.2);border-radius:4px;padding:12px 10px;color:var(--white);font-family:'Rajdhani',sans-serif;font-size:1rem;}
 .form-submit{background:var(--teal-bright);color:var(--teal-deep);font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;padding:15px 32px;border-radius:4px;border:none;cursor:pointer;letter-spacing:1px;width:100%;margin-top:6px;}
 .form-submit:hover{background:var(--teal-glow);}
 .lp-footer{background:rgba(0,0,0,.4);border-top:1px solid rgba(0,212,212,.1);padding:28px 80px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
@@ -298,7 +299,8 @@ a{color:var(--teal-bright);text-decoration:none;}img{max-width:100%;display:bloc
     <div class="form-field">
       <label for="phone-number">Phone Number</label>
       <div class="phone-field-wrap">
-        <select id="phone-code" class="phone-code"><option value="+1" selected>🇺🇸 +1</option><option value="+91">🇮🇳 +91</option><option value="+971">🇦🇪 +971</option><option value="+61">🇦🇺 +61</option><option value="+44">🇬🇧 +44</option></select>
+        <select id="phone-code" class="phone-code" onchange="toggleCustomCode(this)"><option value="+1" selected>United States +1</option><option value="+91">India +91</option><option value="+971">UAE +971</option><option value="+61">Australia +61</option><option value="+44">United Kingdom +44</option><option value="other">Other</option></select>
+        <input type="text" id="phone-code-custom" class="phone-code-custom" placeholder="+__ code" maxlength="6" style="display:none;"/>
         <input type="tel" id="phone-number" class="phone-number" placeholder="(555) 000-0000"/>
       </div>
     </div>
@@ -313,14 +315,15 @@ a{color:var(--teal-bright);text-decoration:none;}img{max-width:100%;display:bloc
   <div class="footer-links"><a href="/privacy-policy.html">Privacy</a><a href="/terms-of-service.html">Terms</a><a href="/#contact">Contact</a><a href="/#digital-marketing">All Services</a></div>
 </footer>
 <script>
+function toggleCustomCode(sel){var c=document.getElementById('phone-code-custom');if(!c)return;c.style.display=sel.value==='other'?'inline-block':'none';if(sel.value==='other')c.focus();}
 var _SURL='https://pduemybwotfrtznpvyii.supabase.co/rest/v1/leads',_SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkdWVteWJ3b3RmcnR6bnB2eWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzIxOTUsImV4cCI6MjA4OTgwODE5NX0.XuBxihlukn9IEes1ty5VTonF-sYJqHfAz3NRx7P6Ecg';
-function submitLeadForm(){var fn=(document.getElementById('fname')?.value||'').trim(),ln=(document.getElementById('lname')?.value||'').trim(),em=(document.getElementById('email')?.value||'').trim(),co=(document.getElementById('company')?.value||'').trim(),pc=(document.getElementById('phone-code')?.value||'+1'),pn=(document.getElementById('phone-number')?.value||'').trim(),sv=(document.getElementById('service')?.value||''),msg=(document.getElementById('message')?.value||'').trim(),digits=pn.replace(/\D/g,''),emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/,errs=[];
-if(!fn)errs.push('First name required.');if(!ln)errs.push('Last name required.');if(!emailRx.test(em))errs.push('Valid email required.');if(!co)errs.push('Company required.');if(digits.length<6)errs.push('Valid phone required.');if(!sv)errs.push('Select a service.');
+function submitLeadForm(){var fn=(document.getElementById('fname')?.value||'').trim(),ln=(document.getElementById('lname')?.value||'').trim(),em=(document.getElementById('email')?.value||'').trim(),co=(document.getElementById('company')?.value||'').trim(),pc=(document.getElementById('phone-code')?.value||'+1'),pcc=(document.getElementById('phone-code-custom')?.value||'').trim(),cc=pc==='other'?pcc:pc,pn=(document.getElementById('phone-number')?.value||'').trim(),sv=(document.getElementById('service')?.value||''),msg=(document.getElementById('message')?.value||'').trim(),digits=pn.replace(/\D/g,''),emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/,errs=[];
+if(!fn)errs.push('First name required.');if(!ln)errs.push('Last name required.');if(!emailRx.test(em))errs.push('Valid email required.');if(!co)errs.push('Company required.');if(digits.length<6)errs.push('Valid phone required.');if(pc==='other'&&!pcc)errs.push('Enter your country code.');if(!sv)errs.push('Select a service.');
 if(errs.length>0){showMsg(errs.join('<br>'),'error');return;}
 var btn=document.getElementById('leadSubmitBtn');if(btn){btn.disabled=true;btn.textContent='Submitting…';}
 var xhr=new XMLHttpRequest();xhr.open('POST',_SURL,true);xhr.setRequestHeader('apikey',_SKEY);xhr.setRequestHeader('Authorization','Bearer '+_SKEY);xhr.setRequestHeader('Content-Type','application/json');xhr.setRequestHeader('Prefer','return=minimal');
 xhr.onreadystatechange=function(){if(xhr.readyState!==4)return;window.location.href='/thank-you';};xhr.onerror=function(){window.location.href='/thank-you';};
-xhr.send(JSON.stringify({first_name:fn,last_name:ln,business_email:em,company:co,phone_country_code:pc,phone_number:digits||pn,service_of_interest:sv,message:msg,source:'healthcare-landing-page',status:'new'}));}
+xhr.send(JSON.stringify({first_name:fn,last_name:ln,business_email:em,company:co,phone_country_code:cc,phone_number:digits||pn,service_of_interest:sv,message:msg,source:'healthcare-landing-page',status:'new'}));}
 function showMsg(html,type){var ex=document.getElementById('lp-msg');if(ex)ex.remove();var d=document.createElement('div');d.id='lp-msg';d.style.cssText='padding:12px 16px;border-radius:4px;font-size:.85rem;margin-top:10px;'+(type==='error'?'background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.4);color:#ff8080;':'background:rgba(0,212,212,.1);border:1px solid rgba(0,212,212,.4);color:#00d4d4;');d.innerHTML=html;var btn=document.getElementById('leadSubmitBtn');if(btn)btn.parentNode.insertBefore(d,btn.nextSibling);}
 </script>
 </body>
