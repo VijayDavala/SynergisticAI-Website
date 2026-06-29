@@ -2247,10 +2247,13 @@
         position: static;
         opacity: 1 !important; visibility: visible !important;
         transform: none !important;
+        pointer-events: none;
         border: none; border-left: 2px solid var(--teal-bright);
         margin-left: 24px; display: none;
       }
-      .nav-item.open .dropdown { display: block; }
+      .nav-item.open .dropdown { display: block; pointer-events: auto !important; }
+      .nav-item.open .dropdown a,
+      .nav-item.open .dropdown button { pointer-events: auto !important; touch-action: manipulation; }
     }
 
     @media (max-width: 768px) {
