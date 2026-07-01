@@ -327,5 +327,76 @@ xhr.onreadystatechange=function(){if(xhr.readyState!==4)return;window.location.h
 xhr.send(JSON.stringify({first_name:fn,last_name:ln,business_email:em,company:co,phone_country_code:cc,phone_number:digits||pn,service_of_interest:sv,message:msg,source:'d2c-ecommerce-landing-page',status:'new'}));}
 function showMsg(html,type){var ex=document.getElementById('lp-msg');if(ex)ex.remove();var d=document.createElement('div');d.id='lp-msg';d.style.cssText='padding:12px 16px;border-radius:4px;font-size:.85rem;margin-top:10px;'+(type==='error'?'background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.4);color:#ff8080;':'background:rgba(0,212,212,.1);border:1px solid rgba(0,212,212,.4);color:#00d4d4;');d.innerHTML=html;var btn=document.getElementById('leadSubmitBtn');if(btn)btn.parentNode.insertBefore(d,btn.nextSibling);}
 </script>
+
+  <!-- WhatsApp Floating Chat Button -->
+  <a
+    href="https://wa.me/919959992175?text=Hello%20Synergistic%20AI%20Solutions%2C%20I%20need%20more%20information%20regarding%20the%20services%20that%20you%20offer.%20Thank%20you!"
+    target="_blank"
+    rel="noopener noreferrer"
+    id="wa-float-btn"
+    aria-label="Chat with our strategist on WhatsApp"
+  >
+    <span id="wa-float-label">Chat with Our Strategist</span>
+    <span id="wa-float-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="54" height="54">
+        <circle cx="24" cy="24" r="24" fill="#25D366"/>
+        <path fill="#fff" d="M24 10.5C16.544 10.5 10.5 16.544 10.5 24c0 2.356.638 4.563 1.748 6.468L10.5 37.5l7.248-1.728A13.432 13.432 0 0 0 24 37.5c7.456 0 13.5-6.044 13.5-13.5S31.456 10.5 24 10.5zm6.617 18.322c-.277.779-1.373 1.427-2.249 1.615-.598.128-1.38.23-4.012-.862-3.367-1.382-5.532-4.793-5.699-5.015-.16-.221-1.352-1.8-1.352-3.435 0-1.634.857-2.44 1.162-2.77.277-.302.601-.378.845-.378.242 0 .484.002.696.013.223.011.523-.085.818.625.304.728 1.032 2.514 1.122 2.698.09.183.15.398.029.642-.12.242-.18.392-.36.603-.18.21-.375.469-.536.63-.18.177-.366.368-.157.722.209.354.927 1.528 1.988 2.474 1.366 1.218 2.517 1.593 2.871 1.772.354.18.561.15.77-.09.209-.242.893-1.04 1.131-1.397.237-.357.473-.297.797-.178.325.118 2.065.974 2.42 1.151.354.178.589.267.676.415.085.146.085.846-.192 1.624z"/>
+      </svg>
+    </span>
+  </a>
+
+  <style>
+    #wa-float-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    #wa-float-label {
+      background: #1a2e22;
+      color: #4ade80;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 12px 16px 12px 18px;
+      border-radius: 50px 0 0 50px;
+      border: 1.5px solid #25D366;
+      border-right: none;
+      line-height: 1;
+      max-width: 0;
+      overflow: hidden;
+      opacity: 0;
+      padding-left: 0;
+      padding-right: 0;
+      transition: max-width 0.35s ease, opacity 0.3s ease, padding 0.35s ease;
+    }
+    #wa-float-btn:hover #wa-float-label {
+      max-width: 220px;
+      opacity: 1;
+      padding: 12px 16px 12px 18px;
+    }
+    #wa-float-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      line-height: 0;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.5);
+      transition: transform 0.2s ease;
+    }
+    #wa-float-btn:hover #wa-float-icon {
+      transform: scale(1.08);
+    }
+    @media (max-width: 480px) {
+      #wa-float-label { display: none; }
+    }
+  </style>
+  <!-- End WhatsApp Floating Chat Button -->
+
 </body>
 </html>
