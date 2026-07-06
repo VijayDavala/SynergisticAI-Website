@@ -1,6 +1,6 @@
 # Synergistic AI Solutions — robots.txt
 # https://synergisticaisolns.com
-# Updated: June 2026
+# Updated: July 2026
 
 # ── Allow all legitimate search engine bots ──
 User-agent: *
@@ -34,8 +34,6 @@ Allow: /
 
 User-agent: anthropic-ai
 Allow: /
-<<<<<<< Updated upstream
-=======
 
 User-agent: ClaudeBot
 Allow: /
@@ -60,24 +58,6 @@ Allow: /
 
 User-agent: Diffbot
 Allow: /
->>>>>>> Stashed changes
 
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: YouBot
-Allow: /
-
-User-agent: CCBot
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent
+# ── Sitemap ──
+Sitemap: https://synergisticaisolns.com/sitemap.xml
