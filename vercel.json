@@ -71,6 +71,10 @@
       "destination": "/digital-marketing/:page.html"
     },
     {
+      "source": "/ai-automations/:page",
+      "destination": "/ai-automations/:page.html"
+    },
+    {
       "source": "/((?!.*\\.).*)",
       "destination": "/index.html"
     }
