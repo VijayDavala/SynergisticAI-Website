@@ -600,23 +600,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .dropdown a::before { content: '▸'; color: var(--teal-bright); opacity: 0; transition: opacity 0.2s; }
     .dropdown a:hover::before { opacity: 1; }
 
-    /* Nested sub-sections (AI Automation Pages under AI Automations, Landing Pages under Digital Marketing) */
-    .subnav-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px; }
-    .subnav-caret { width: 9px; height: 9px; flex-shrink: 0; fill: currentColor; opacity: 0.55; transition: transform 0.25s; }
-    .subnav-parent.open .subnav-caret { transform: rotate(180deg); }
-    .subnav-panel { display: flex; flex-direction: column; background: rgba(0,0,0,0.18); }
-    .subnav-panel a { padding-left: 40px; font-size: 0.82rem; }
-    .subnav-panel a::before { content: '›'; }
-    @media (min-width: 901px) { .subnav-panel { display: flex; } }
-    @media (max-width: 900px) {
-      .subnav-panel { display: none; }
-      .subnav-parent.open .subnav-panel {
-        display: flex;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-      }
-    }
-
     /* Nav right group (CTA + contact info) */
     .nav-right {
       display: flex;
@@ -2272,7 +2255,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         transition: max-height 0.4s ease;
         margin-left: 0;
       }
-      .nav-links.open { max-height: calc(100vh - 70px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+      .nav-links.open { max-height: calc(100dvh - 70px); overflow-y: auto; }
       .nav-link { height: auto; padding: 16px 24px; width: 100%; }
       .dropdown {
         position: static;
@@ -2281,15 +2264,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         pointer-events: none;
         border: none; border-left: 2px solid var(--teal-bright);
         margin-left: 24px; display: none;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        background: rgba(8, 20, 38, 0.99) !important;
       }
-      .nav-item.open .dropdown {
-        display: block; pointer-events: auto !important;
-        -webkit-transform: translateZ(0) !important;
-        transform: translateZ(0) !important;
-      }
+      .nav-item.open .dropdown { display: block; pointer-events: auto !important; }
       .nav-item.open .dropdown a,
       .nav-item.open .dropdown button { pointer-events: auto !important; touch-action: manipulation; }
     }
@@ -2678,13 +2654,12 @@ nav { position: relative; z-index: 9999; }
     overflow: hidden !important;
     margin-left: 0;
     z-index: 9998;
-    transition: none !important;
+    transition: max-height 0.3s ease;
     pointer-events: none;
   }
   .nav-links.open {
-    max-height: calc(100vh - 70px) !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
+    max-height: calc(100dvh - 70px) !important;
+    overflow-y: auto;
     pointer-events: auto;
   }
 
@@ -2871,7 +2846,7 @@ nav { position: relative; z-index: 9999; }
 
       <!-- Industries dropdown -->
       <li class="nav-item" role="none" id="industriesNav">
-        <button class="nav-link" data-section="industries" role="menuitem" aria-haspopup="true" type="button">
+        <button class="nav-link" onclick="showSection('industries')" role="menuitem" aria-haspopup="true" type="button">
           Industries
           <svg viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
         </button>
@@ -2885,40 +2860,28 @@ nav { position: relative; z-index: 9999; }
 
       <!-- Services dropdown -->
       <li class="nav-item" role="none" id="servicesNav">
-        <button class="nav-link" data-section="services" role="menuitem" aria-haspopup="true" type="button">
+        <button class="nav-link" onclick="showSection('services')" role="menuitem" aria-haspopup="true" type="button">
           Services
           <svg viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
         </button>
         <div class="dropdown" role="menu" aria-label="Services">
-          <div class="subnav-parent" id="aiAutoParent">
-            <button class="subnav-toggle" data-section="ai-automations" role="menuitem" type="button">
-              <span>⚡ AI Automations</span>
-              <svg class="subnav-caret" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
-            </button>
-            <div class="subnav-panel">
-              <a href="/ai-automations/insurance" role="menuitem">🛡️ Insurance AI Automation</a>
-              <a href="/ai-automations/healthcare" role="menuitem">🏥 Healthcare AI Automation</a>
-            </div>
-          </div>
+          <button onclick="showSection('ai-automations')" role="menuitem" type="button">⚡ AI Automations</button>
           <button onclick="showSection('services')" role="menuitem" type="button">💻 SaaS IT Solutions</button>
-          <div class="subnav-parent" id="dmParent">
-            <button class="subnav-toggle" data-section="digital-marketing" role="menuitem" type="button">
-              <span>📈 Digital Marketing Solutions</span>
-              <svg class="subnav-caret" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
-            </button>
-            <div class="subnav-panel">
-              <a href="/digital-marketing/insurance" role="menuitem">🛡️ Insurance</a>
-              <a href="/digital-marketing/ivf-fertility" role="menuitem">👶 IVF & Fertility</a>
-              <a href="/digital-marketing/med-spa" role="menuitem">💆 Med Spa</a>
-              <a href="/digital-marketing/solar" role="menuitem">☀️ Solar</a>
-              <a href="/digital-marketing/dental" role="menuitem">🦷 Dental</a>
-              <a href="/digital-marketing/healthcare" role="menuitem">🏥 Healthcare</a>
-              <a href="/digital-marketing/b2b" role="menuitem">💼 B2B</a>
-              <a href="/digital-marketing/d2c-ecommerce" role="menuitem">🛒 D2C / Ecommerce</a>
-              <a href="/digital-marketing/saas" role="menuitem">🚀 SaaS</a>
-              <a href="/digital-marketing/mobile-apps" role="menuitem">📱 Mobile Apps</a>
-            </div>
-          </div>
+          <button onclick="showSection('digital-marketing')" role="menuitem" type="button">📈 Digital Marketing Solutions</button>
+          <div style="border-top:1px solid rgba(0,212,212,.2);margin:6px 0 2px;padding:6px 20px 2px;font-size:.62rem;letter-spacing:2px;color:rgba(0,212,212,.55);text-transform:uppercase;font-family:'Orbitron',sans-serif;pointer-events:none;">AI Automation Pages</div>
+          <a href="/ai-automations/insurance" role="menuitem">🛡️ Insurance AI Automation</a>
+          <a href="/ai-automations/healthcare" role="menuitem">🏥 Healthcare AI Automation</a>
+          <div style="border-top:1px solid rgba(0,212,212,.2);margin:6px 0 2px;padding:6px 20px 2px;font-size:.62rem;letter-spacing:2px;color:rgba(0,212,212,.55);text-transform:uppercase;font-family:'Orbitron',sans-serif;pointer-events:none;">Landing Pages</div>
+          <a href="/digital-marketing/insurance" role="menuitem">🛡️ Insurance</a>
+          <a href="/digital-marketing/ivf-fertility" role="menuitem">👶 IVF & Fertility</a>
+          <a href="/digital-marketing/med-spa" role="menuitem">💆 Med Spa</a>
+          <a href="/digital-marketing/solar" role="menuitem">☀️ Solar</a>
+          <a href="/digital-marketing/dental" role="menuitem">🦷 Dental</a>
+          <a href="/digital-marketing/healthcare" role="menuitem">🏥 Healthcare</a>
+          <a href="/digital-marketing/b2b" role="menuitem">💼 B2B</a>
+          <a href="/digital-marketing/d2c-ecommerce" role="menuitem">🛒 D2C / Ecommerce</a>
+          <a href="/digital-marketing/saas" role="menuitem">🚀 SaaS</a>
+          <a href="/digital-marketing/mobile-apps" role="menuitem">📱 Mobile Apps</a>
         </div>
       </li>
 
@@ -4348,42 +4311,26 @@ nav { position: relative; z-index: 9999; }
 
     // Dropdown interaction — desktop: hover (CSS handles it)
     // Mobile: click parent button to toggle dropdown
-    // Note: navigation is handled entirely here (no inline onclick) so the mobile/desktop
-    // branch below is reliably reached before any navigation happens.
     document.querySelectorAll('.nav-item').forEach(item => {
       const navBtn = item.querySelector(':scope > button.nav-link');
       const dropdown = item.querySelector('.dropdown');
       if (!navBtn || !dropdown) return;
 
       navBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        // Desktop — navigate normally
-        if (window.innerWidth > 900) {
-          const sectionId = navBtn.getAttribute('data-section');
-          if (sectionId) showSection(sectionId);
-          return;
-        }
+        // Desktop — let showSection run normally (no dropdown toggle needed)
+        if (window.innerWidth > 900) return;
 
         // Mobile — toggle dropdown instead of navigating
+        e.preventDefault();
         e.stopPropagation();
         const isOpen = item.classList.contains('open');
         // Close all other open dropdowns
         document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
-        document.querySelectorAll('.subnav-parent.open').forEach(i => i.classList.remove('open'));
-        if (!isOpen) {
-          item.classList.add('open');
-          // Force iOS Safari/WebKit to repaint the newly-revealed dropdown content —
-          // without this, content shown via display:none->block inside a resized
-          // position:fixed ancestor can stay unpainted until the user scrolls.
-          // (CSS also promotes .dropdown to its own compositing layer when open —
-          // see ".nav-item.open .dropdown" — this forces layout to flush now too.)
-          void dropdown.offsetHeight;
-        }
+        if (!isOpen) item.classList.add('open');
       });
 
-      // Dropdown buttons — navigate and close menu (excludes subnav-toggle, handled separately below)
-      dropdown.querySelectorAll('button:not(.subnav-toggle)').forEach(btn => {
+      // Dropdown buttons — navigate and close menu
+      dropdown.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
           // Close mobile menu
@@ -4391,43 +4338,13 @@ nav { position: relative; z-index: 9999; }
           hamburger.classList.remove('open');
           hamburger.setAttribute('aria-expanded', false);
           document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
-          document.querySelectorAll('.subnav-parent.open').forEach(i => i.classList.remove('open'));
         });
-      });
-    });
-
-    // Nested sub-sections (AI Automation Pages under AI Automations, Landing Pages under Digital Marketing)
-    // Note: navigation is handled entirely here (no inline onclick) so the mobile/desktop branch
-    // below is reliably reached before any navigation happens.
-    document.querySelectorAll('.subnav-parent').forEach(parent => {
-      const toggle = parent.querySelector(':scope > .subnav-toggle');
-      if (!toggle) return;
-      toggle.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        // Desktop — sub-panel is always visible via CSS, clicking navigates normally
-        if (window.innerWidth > 900) {
-          const sectionId = toggle.getAttribute('data-section');
-          if (sectionId) showSection(sectionId);
-          return;
-        }
-
-        // Mobile — expand/collapse the nested panel instead of navigating away
-        e.stopPropagation();
-        const isOpen = parent.classList.contains('open');
-        document.querySelectorAll('.subnav-parent.open').forEach(p => { if (p !== parent) p.classList.remove('open'); });
-        parent.classList.toggle('open', !isOpen);
-        if (!isOpen) {
-          var panel = parent.querySelector(':scope > .subnav-panel');
-          if (panel) void panel.offsetHeight;
-        }
       });
     });
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', function() {
       document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
-      document.querySelectorAll('.subnav-parent.open').forEach(i => i.classList.remove('open'));
     });
 
     /* ============ SECTION NAVIGATION ============ */
@@ -4439,7 +4356,6 @@ nav { position: relative; z-index: 9999; }
       hamburger.classList.remove('open');
       hamburger.setAttribute('aria-expanded', false);
       document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
-      document.querySelectorAll('.subnav-parent.open').forEach(i => i.classList.remove('open'));
 
       // Hide ALL sections with inline style — beats CSS specificity on iOS Safari
       document.querySelectorAll('.page-section').forEach(s => {
