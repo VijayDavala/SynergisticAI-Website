@@ -2268,7 +2268,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         transition: max-height 0.4s ease;
         margin-left: 0;
       }
-      .nav-links.open { max-height: calc(100dvh - 70px); overflow-y: auto; }
+      .nav-links.open { max-height: calc(100vh - 70px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
       .nav-link { height: auto; padding: 16px 24px; width: 100%; }
       .dropdown {
         position: static;
@@ -2674,8 +2674,9 @@ nav { position: relative; z-index: 9999; }
     pointer-events: none;
   }
   .nav-links.open {
-    max-height: calc(100dvh - 70px) !important;
+    max-height: calc(100vh - 70px) !important;
     overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     pointer-events: auto;
   }
 
