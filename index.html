@@ -610,7 +610,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     @media (min-width: 901px) { .subnav-panel { display: flex; } }
     @media (max-width: 900px) {
       .subnav-panel { display: none; }
-      .subnav-parent.open .subnav-panel { display: flex; }
+      .subnav-parent.open .subnav-panel {
+        display: flex;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+      }
     }
 
     /* Nav right group (CTA + contact info) */
@@ -2281,7 +2285,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         -webkit-backdrop-filter: none !important;
         background: rgba(8, 20, 38, 0.99) !important;
       }
-      .nav-item.open .dropdown { display: block; pointer-events: auto !important; }
+      .nav-item.open .dropdown {
+        display: block; pointer-events: auto !important;
+        -webkit-transform: translateZ(0) !important;
+        transform: translateZ(0) !important;
+      }
       .nav-item.open .dropdown a,
       .nav-item.open .dropdown button { pointer-events: auto !important; touch-action: manipulation; }
     }
@@ -4363,7 +4371,15 @@ nav { position: relative; z-index: 9999; }
         // Close all other open dropdowns
         document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
         document.querySelectorAll('.subnav-parent.open').forEach(i => i.classList.remove('open'));
-        if (!isOpen) item.classList.add('open');
+        if (!isOpen) {
+          item.classList.add('open');
+          // Force iOS Safari/WebKit to repaint the newly-revealed dropdown content —
+          // without this, content shown via display:none->block inside a resized
+          // position:fixed ancestor can stay unpainted until the user scrolls.
+          // (CSS also promotes .dropdown to its own compositing layer when open —
+          // see ".nav-item.open .dropdown" — this forces layout to flush now too.)
+          void dropdown.offsetHeight;
+        }
       });
 
       // Dropdown buttons — navigate and close menu (excludes subnav-toggle, handled separately below)
@@ -4401,6 +4417,10 @@ nav { position: relative; z-index: 9999; }
         const isOpen = parent.classList.contains('open');
         document.querySelectorAll('.subnav-parent.open').forEach(p => { if (p !== parent) p.classList.remove('open'); });
         parent.classList.toggle('open', !isOpen);
+        if (!isOpen) {
+          var panel = parent.querySelector(':scope > .subnav-panel');
+          if (panel) void panel.offsetHeight;
+        }
       });
     });
 
