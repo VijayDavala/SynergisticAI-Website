@@ -2879,7 +2879,7 @@ nav { position: relative; z-index: 9999; }
         </button>
         <div class="dropdown" role="menu" aria-label="Services">
           <div class="subnav-parent" id="aiAutoParent">
-            <button class="subnav-toggle" onclick="showSection('ai-automations')" role="menuitem" type="button">
+            <button class="subnav-toggle" data-section="ai-automations" role="menuitem" type="button">
               <span>⚡ AI Automations</span>
               <svg class="subnav-caret" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
             </button>
@@ -2890,7 +2890,7 @@ nav { position: relative; z-index: 9999; }
           </div>
           <button onclick="showSection('services')" role="menuitem" type="button">💻 SaaS IT Solutions</button>
           <div class="subnav-parent" id="dmParent">
-            <button class="subnav-toggle" onclick="showSection('digital-marketing')" role="menuitem" type="button">
+            <button class="subnav-toggle" data-section="digital-marketing" role="menuitem" type="button">
               <span>📈 Digital Marketing Solutions</span>
               <svg class="subnav-caret" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
             </button>
@@ -4369,15 +4369,22 @@ nav { position: relative; z-index: 9999; }
     });
 
     // Nested sub-sections (AI Automation Pages under AI Automations, Landing Pages under Digital Marketing)
+    // Note: navigation is handled entirely here (no inline onclick) so the mobile/desktop branch
+    // below is reliably reached before any navigation happens.
     document.querySelectorAll('.subnav-parent').forEach(parent => {
       const toggle = parent.querySelector(':scope > .subnav-toggle');
       if (!toggle) return;
       toggle.addEventListener('click', function(e) {
-        // Desktop — sub-panel is always visible via CSS, let showSection run normally
-        if (window.innerWidth > 900) return;
+        e.preventDefault();
+
+        // Desktop — sub-panel is always visible via CSS, clicking navigates normally
+        if (window.innerWidth > 900) {
+          const sectionId = toggle.getAttribute('data-section');
+          if (sectionId) showSection(sectionId);
+          return;
+        }
 
         // Mobile — expand/collapse the nested panel instead of navigating away
-        e.preventDefault();
         e.stopPropagation();
         const isOpen = parent.classList.contains('open');
         document.querySelectorAll('.subnav-parent.open').forEach(p => { if (p !== parent) p.classList.remove('open'); });
