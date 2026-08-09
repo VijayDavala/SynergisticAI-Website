@@ -2859,7 +2859,7 @@ nav { position: relative; z-index: 9999; }
 
       <!-- Industries dropdown -->
       <li class="nav-item" role="none" id="industriesNav">
-        <button class="nav-link" onclick="showSection('industries')" role="menuitem" aria-haspopup="true" type="button">
+        <button class="nav-link" data-section="industries" role="menuitem" aria-haspopup="true" type="button">
           Industries
           <svg viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
         </button>
@@ -2873,7 +2873,7 @@ nav { position: relative; z-index: 9999; }
 
       <!-- Services dropdown -->
       <li class="nav-item" role="none" id="servicesNav">
-        <button class="nav-link" onclick="showSection('services')" role="menuitem" aria-haspopup="true" type="button">
+        <button class="nav-link" data-section="services" role="menuitem" aria-haspopup="true" type="button">
           Services
           <svg viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z"/></svg>
         </button>
@@ -4336,21 +4336,29 @@ nav { position: relative; z-index: 9999; }
 
     // Dropdown interaction — desktop: hover (CSS handles it)
     // Mobile: click parent button to toggle dropdown
+    // Note: navigation is handled entirely here (no inline onclick) so the mobile/desktop
+    // branch below is reliably reached before any navigation happens.
     document.querySelectorAll('.nav-item').forEach(item => {
       const navBtn = item.querySelector(':scope > button.nav-link');
       const dropdown = item.querySelector('.dropdown');
       if (!navBtn || !dropdown) return;
 
       navBtn.addEventListener('click', function(e) {
-        // Desktop — let showSection run normally (no dropdown toggle needed)
-        if (window.innerWidth > 900) return;
+        e.preventDefault();
+
+        // Desktop — navigate normally
+        if (window.innerWidth > 900) {
+          const sectionId = navBtn.getAttribute('data-section');
+          if (sectionId) showSection(sectionId);
+          return;
+        }
 
         // Mobile — toggle dropdown instead of navigating
-        e.preventDefault();
         e.stopPropagation();
         const isOpen = item.classList.contains('open');
         // Close all other open dropdowns
         document.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+        document.querySelectorAll('.subnav-parent.open').forEach(i => i.classList.remove('open'));
         if (!isOpen) item.classList.add('open');
       });
 
